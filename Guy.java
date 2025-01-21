@@ -1,3 +1,4 @@
 public class Guy {
-    //hdbhsdbibhcsdicbsdhibci
+    public static void main(String[] args) {
+    }
 }

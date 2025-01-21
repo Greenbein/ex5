@@ -6,7 +6,6 @@ public abstract class Variable {
     private boolean isFinal;
     private boolean isInitialized;
     protected Variable(String name,
-                       String valueStr,
                        int layer,
                        boolean isFinal,
                        boolean isInitialized) {
@@ -25,6 +24,7 @@ public abstract class Variable {
      * @return is the input valid or not
      */
     public abstract boolean isValidInput(String input);
+    public abstract void updateValue(String input);
 
     // this function checks is a name of a variable is valid
     // if not throwing relevant exception
