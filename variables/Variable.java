@@ -1,5 +1,9 @@
 package variables;
 
+import variables.basic_exceptions.InvalidFormatName;
+import variables.basic_exceptions.NameStartsWithDoubleUnderscoreException;
+import variables.basic_exceptions.NameStartsWithNumberException;
+
 public abstract class Variable {
     private String name;
     private int layer;
@@ -28,22 +32,22 @@ public abstract class Variable {
 
     // this function checks is a name of a variable is valid
     // if not throwing relevant exception
-    private boolean isValidName(String name) throws IllegalArgumentException {
+    private boolean isValidName(String name){
         if(name.equals("_")){
             // exception name is only _
-            throw new IllegalArgumentException();
+            throw new NameStartsWithNumberException();
         }
         if(name.matches("^__.*")){
             // exception starts with double __
-            throw new IllegalArgumentException();
+            throw new NameStartsWithDoubleUnderscoreException();
         }
         if(name.matches("^\\d{1}.*")){
-            // exception starts with an number
-            throw new IllegalArgumentException();
+            // exception starts with a number
+            throw new NameStartsWithNumberException();
         }
        if(!name.matches("^\\w+$")){
            // exception illegal format using invalid format
-           throw new IllegalArgumentException();
+           throw new InvalidFormatName();
        }
        return true;
     }
