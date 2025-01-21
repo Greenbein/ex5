@@ -17,10 +17,35 @@ public abstract class Variable {
         this.isFinal = isFinal;
         this.isInitialized = isInitialized;
     }
+
+    /**
+     * this function checks is the input we got in the
+     * variable is valid if not throw relevant exception
+     * @param input the input of the variable
+     * @return is the input valid or not
+     */
     public abstract boolean isValidInput(String input);
-    public boolean isValidName(String name) throws IllegalArgumentException {
-        // ...
-        return true;
+
+    // this function checks is a name of a variable is valid
+    // if not throwing relevant exception
+    private boolean isValidName(String name) throws IllegalArgumentException {
+        if(name.equals("_")){
+            // exception name is only _
+            throw new IllegalArgumentException();
+        }
+        if(name.matches("^__.*")){
+            // exception starts with double __
+            throw new IllegalArgumentException();
+        }
+        if(name.matches("^\\d{1}.*")){
+            // exception starts with an number
+            throw new IllegalArgumentException();
+        }
+       if(!name.matches("^\\w+$")){
+           // exception illegal format using invalid format
+           throw new IllegalArgumentException();
+       }
+       return true;
     }
 
     // getters
