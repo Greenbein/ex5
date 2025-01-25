@@ -3,7 +3,6 @@ package variables.string_s_java;
 import variables.Variable;
 import variables.basic_exceptions.InvalidSetFinalVariableException;
 import variables.string_s_java.exceptions.InvalidStringInputException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

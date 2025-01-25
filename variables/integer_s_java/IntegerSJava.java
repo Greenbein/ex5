@@ -22,7 +22,7 @@ public class IntegerSJava extends Variable {
      */
      public IntegerSJava(String name, int layer, boolean isFinal, String value){
         super(name, layer, isFinal, true);
-         initializeValue(value);
+        initializeValue(value);
     }
 
     /**

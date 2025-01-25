@@ -5,7 +5,6 @@ import variables.boolean_s_java.exceptions.InvalidBooleanException;
 import variables.char_s_java.exceptions.InvalidCharException;
 import variables.integer_s_java.exceptions.InvalidIntegerInputException;
 import variables.string_s_java.exceptions.InvalidStringInputException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,14 +20,15 @@ public class Variable {
     private static final String INTEGER = "integer";
     private static final String TRUE = "true";
     private static final String FALSE = "false";
-    private String valueType;
+    private String valueTypeForBoolean;
     // until here
     private String name;
-    private int layer;
-    private boolean isFinal;
-    private boolean isInitialized;
-    private VariableType type;
+    private final int layer;
+    private final boolean isFinal;
+    private final boolean isInitialized;
+    private final VariableType type;
     private Object value;
+
     /**
      * default constructor of variable
      * @param name name of variable
@@ -40,16 +40,51 @@ public class Variable {
                        int layer,
                        boolean isFinal,
                        boolean isInitialized,
+                       String valueTypeForBoolean,
+                       VariableType type,
                        String value) {
+        // set a name (if it is correct)
+        if(isValidName(name)) {
+            this.name = name;
+        }
+        // the variable can't be final without being initialized
         if(!isInitialized && isFinal) {
             throw new InvalidFinalVariableIntialization();
         }
-        if(isValidName(name)) {
-            this.name = name;
+        // uninitialized variable does not have any value in it
+        if (!isInitialized && value != null) {
+            throw new AssignNonInitializedVariableError(name);
         }
         this.layer = layer;
         this.isFinal = isFinal;
         this.isInitialized = isInitialized;
+        this.valueTypeForBoolean = valueTypeForBoolean;
+        this.type = type;
+        // initialize the value if the input value is correct (according to variable's type)
+        if(this.isValidInput(value,this.type)){
+            initializeValue(value);
+        }
+    }
+
+    /**
+     * Constructor for uninitialized variable
+     * @param name - variable's name
+     * @param layer - variable's layer (for scope)
+     * @param isFinal - isFinal must be equal to false
+     * @param type - variable's type
+     */
+    public Variable(String name,int layer,boolean isFinal,VariableType type){
+        if(isValidName(name)) {
+            this.name = name;
+        }
+        this.layer = layer;
+        if(isFinal) {
+            throw new InvalidFinalVariableIntialization();
+        }
+        this.isFinal = isFinal;
+        this.isInitialized = false;
+        this.type = type;
+        this.value = null;
     }
 
     /**
@@ -59,19 +94,13 @@ public class Variable {
      * @return is the input valid or not
      */
     public boolean isValidInput(String input, VariableType type){
-        switch(type){
-            case INTEGER:
-                return isValidInputForInteger(input);
-            case DOUBLE:
-                return isValidInputForDouble(input);
-            case BOOLEAN:
-                return isValidInputForBoolean(input);
-            case STRING:
-                return isValidInputForString(input);
-            case CHAR:
-                return isValidInputForChar(input);
-        }
-        return false;
+        return switch (type) {
+            case INTEGER -> isValidInputForInteger(input);
+            case DOUBLE -> isValidInputForDouble(input);
+            case BOOLEAN -> isValidInputForBoolean(input);
+            case STRING -> isValidInputForString(input);
+            case CHAR -> isValidInputForChar(input);
+        };
     }
 
     /**
@@ -79,16 +108,16 @@ public class Variable {
      * the value of the certain variable
      * @param input the value we need to set
      */
-    public  void setValue(String input){
+    public void setValue(String input){
         switch(type){
             case INTEGER:
-                setValueBoolean(input);
+                setValueInteger(input);
                 break;
             case DOUBLE:
                 setValueDouble(input);
                 break;
             case BOOLEAN:
-                setValueDouble(input);
+                setValueBoolean(input);
                 break;
             case STRING:
                 stringSetValue(input);
@@ -103,7 +132,7 @@ public class Variable {
      * the value of the certain variable
      * @param input the value we need to implement in the initializes variable
      */
-    public  void initializeValue(String input){
+    public void initializeValue(String input){
         switch(type){
             case INTEGER:
                initializeValueInteger(input);
@@ -153,11 +182,11 @@ public class Variable {
      */
     public boolean isValidInputForBoolean(String input) {
         if(isValidInputForInteger(input)){
-            this.valueType = INTEGER;
+            this.valueTypeForBoolean = INTEGER;
             return true;
         }
         if(isValidInputForDouble(input)){
-            this.valueType = DOUBLE;
+            this.valueTypeForBoolean = DOUBLE;
             return true;
         }
         return checkIsInputBoolean(input);
@@ -171,7 +200,7 @@ public class Variable {
         if(this.isFinal()){
             throw new InvalidSetFinalVariableException();
         }
-        updateValue(input);
+        updateValueBooleanCase(input);
     }
 
     /**
@@ -179,7 +208,7 @@ public class Variable {
      * @param input the value we need to implement in the initializes variable
      */
     public void initializeValueBoolean(String input) {
-        updateValue(input);
+        updateValueBooleanCase(input);
     }
 
     // checks is String input represents a boolean
@@ -187,13 +216,13 @@ public class Variable {
         Pattern truePattern = Pattern.compile("^true$");
         Matcher m = truePattern.matcher(input);
         if(m.matches()){
-            this.valueType = TRUE;
+            this.valueTypeForBoolean = TRUE;
             return true;
         }
         Pattern falsePattern = Pattern.compile("^false$");
         m = falsePattern.matcher(input);
         if(m.matches()){
-            this.valueType = FALSE;
+            this.valueTypeForBoolean = FALSE;
             return true;
         }
         return false;
@@ -236,9 +265,9 @@ public class Variable {
     }
 
     // this function updates the value of boolean variable
-    private void updateValue(String input){
+    private void updateValueBooleanCase(String input){
         if(isValidInputForBoolean(input)){
-            switch(this.valueType){
+            switch(this.valueTypeForBoolean){
                 case INTEGER:
                     switchIntegerToBoolean(input);
                     break;
@@ -326,7 +355,7 @@ public class Variable {
         if(isValidInputForDouble(input)){
             String cleanedInput = input.replaceFirst
                     ("^[+]", "").replaceFirst("^0+", "");
-            this.value = Integer.parseInt(cleanedInput);
+            this.value = Double.parseDouble(cleanedInput);
         }
         else{
             throw new InvalidStringInputException(this.getName());
@@ -437,24 +466,42 @@ public class Variable {
 
     // ---------------- getters for variable fields-------------------------
 
-    // return is a variable is final
+    /**
+     * check if the variable is final or not
+     * @return isFinal status
+     */
     public boolean isFinal() {
         return this.isFinal;
     }
 
-    // return is a variable initialized
+    /**
+     * check if the value is initialized
+     * @return initialization status
+     */
     public boolean isInitialized() {
         return this.isInitialized;
     }
 
-    // returns the name of the variable
+    /**
+     * getter for variable's name
+     * @return variable's name
+     */
     public String getName() {
         return this.name;
     }
 
-    // returns the layer of the object
+    /**
+     * getter for layer
+     * @return var's layer
+     */
     public int getLayer() {
         return this.layer;
     }
 
+    public void setValue(Object value) {
+        this.value = value;
+    }
+    public Object getValue() {
+        return value;
+    }
 }

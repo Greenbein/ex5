@@ -3,9 +3,6 @@ package variables.boolean_s_java;
 import variables.Variable;
 import variables.basic_exceptions.InvalidSetFinalVariableException;
 import variables.boolean_s_java.exceptions.InvalidBooleanException;
-import variables.double_s_java.exceptions.InvalidDoubleException;
-import variables.string_s_java.exceptions.InvalidStringInputException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
