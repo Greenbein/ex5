@@ -1,4 +1,4 @@
-package variables.basic_exceptions;
+package variables.exceptions;
 
 /**
  * exception for an invalid format of a name

@@ -1,4 +1,4 @@
-package variables.boolean_s_java.exceptions;
+package variables.exceptions;
 
 /**
  * class of boolean exception

@@ -1,4 +1,4 @@
-package variables.basic_exceptions;
+package variables.exceptions;
 
 /**
  * exception to trying to set a new value for a final variable

@@ -1,4 +1,4 @@
-package variables.string_s_java.exceptions;
+package variables.exceptions;
 
 public class InvalidStringInputException extends RuntimeException {
     private static final String INVALID_STRING_INPUT =

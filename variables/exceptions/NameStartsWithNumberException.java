@@ -1,4 +1,4 @@
-package variables.basic_exceptions;
+package variables.exceptions;
 
 /**
  * exception for a name that starts with a number

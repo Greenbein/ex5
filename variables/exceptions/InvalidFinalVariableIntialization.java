@@ -1,4 +1,4 @@
-package variables.basic_exceptions;
+package variables.exceptions;
 
 /**
  * exception for the case we try to create final variable without a value

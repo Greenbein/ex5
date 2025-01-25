@@ -1,16 +1,13 @@
 package variables;
 
-import variables.basic_exceptions.*;
-import variables.boolean_s_java.exceptions.InvalidBooleanException;
-import variables.char_s_java.exceptions.InvalidCharException;
-import variables.integer_s_java.exceptions.InvalidIntegerInputException;
-import variables.string_s_java.exceptions.InvalidStringInputException;
+import variables.exceptions.*;
+import variables.exceptions.InvalidBooleanException;
+import variables.exceptions.InvalidCharException;
+import variables.exceptions.InvalidIntegerInputException;
+import variables.exceptions.InvalidStringInputException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-enum VariableType{
-    INTEGER, DOUBLE, BOOLEAN, STRING, CHAR
-}
 /**
  * This class implements java variable
  */
@@ -502,6 +499,13 @@ public class Variable {
      */
     public int getLayer() {
         return this.layer;
+    }
+
+    /**
+     * get variable's value
+     */
+    public Object getValue() {
+        return this.value;
     }
 
 }

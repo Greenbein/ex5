@@ -1,4 +1,4 @@
-package variables.double_s_java.exceptions;
+package variables.exceptions;
 /**
  * exception for an invalid format of a double
  */

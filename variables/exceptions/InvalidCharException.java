@@ -1,4 +1,4 @@
-package variables.char_s_java.exceptions;
+package variables.exceptions;
 /**
  * exception for an invalid format of a char
  */
