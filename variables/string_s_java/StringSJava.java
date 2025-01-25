@@ -1,6 +1,7 @@
 package variables.string_s_java;
 
 import variables.Variable;
+import variables.basic_exceptions.InvalidSetFinalVariableException;
 import variables.string_s_java.exceptions.InvalidStringInputException;
 
 import java.util.regex.Matcher;
@@ -10,12 +11,10 @@ public class StringSJava extends Variable {
     private String value;
     public StringSJava(String name, int layer, boolean isFinal, String value) {
         super(name, layer, isFinal, true);
-        if(this.isValidInput(value)){
-            this.updateValue(value);
-        }
-        else{
-            throw new InvalidStringInputException(name);
-        }
+        initializeValue(value);
+    }
+    public StringSJava(String name, int layer, boolean isFinal) {
+        super(name, layer, isFinal, false);
     }
 
 //    public String toString(){
@@ -23,23 +22,36 @@ public class StringSJava extends Variable {
 //    }
 
     /**
-     *
+     * checks is the input of the variable valid
      * @param input the input of the variable
      * @return
      */
     @Override
     public boolean isValidInput(String input) {
-        Pattern p = Pattern.compile("^[^\\\\'\",]*$");
+        Pattern p = Pattern.compile("^.*[\\\\'\",].*$");
         Matcher m = p.matcher(input);
-        return m.matches();
+        return !m.matches();
 
     }
-    /**
-     * this function implements
-     * @param input the value we need to apply
-     */
     @Override
-    public void updateValue(String input) {
-        this.value = input;
+    public void initializeValue(String input) {
+         if(this.isValidInput(input)){
+             this.value = input;
+         }
+         else{
+             throw new InvalidStringInputException(this.getName());
+         }
+    }
+    @Override
+    public void setValue(String input) {
+        if(this.isValidInput(input)){
+            throw new InvalidSetFinalVariableException();
+        }
+        if(isValidInput(input)){
+            this.value = input;
+        }
+        else{
+            throw new InvalidStringInputException(this.getName());
+        }
     }
 }

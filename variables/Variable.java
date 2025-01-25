@@ -1,5 +1,6 @@
 package variables;
 
+import variables.basic_exceptions.InvalidFinalVariableIntialization;
 import variables.basic_exceptions.InvalidFormatName;
 import variables.basic_exceptions.NameStartsWithDoubleUnderscoreException;
 import variables.basic_exceptions.NameStartsWithNumberException;
@@ -24,6 +25,9 @@ public abstract class Variable {
                        int layer,
                        boolean isFinal,
                        boolean isInitialized) {
+        if(!isInitialized && isFinal) {
+            throw new InvalidFinalVariableIntialization();
+        }
         if(isValidName(name)) {
             this.name = name;
         }
