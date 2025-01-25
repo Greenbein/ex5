@@ -18,17 +18,26 @@ public class StringSJava extends Variable {
         }
     }
 
-    public String toString(){
-        return this.value;
-    }
+//    public String toString(){
+//        return this.value;
+//    }
 
+    /**
+     *
+     * @param input the input of the variable
+     * @return
+     */
     @Override
     public boolean isValidInput(String input) {
         Pattern p = Pattern.compile("^[^\\\\'\",]*$");
         Matcher m = p.matcher(input);
         return m.matches();
-    }
 
+    }
+    /**
+     * this function implements
+     * @param input the value we need to apply
+     */
     @Override
     public void updateValue(String input) {
         this.value = input;

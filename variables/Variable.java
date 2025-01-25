@@ -4,12 +4,23 @@ import variables.basic_exceptions.InvalidFormatName;
 import variables.basic_exceptions.NameStartsWithDoubleUnderscoreException;
 import variables.basic_exceptions.NameStartsWithNumberException;
 
+/**
+ * This class implements java variable
+ */
 public abstract class Variable {
     private String name;
     private int layer;
     private boolean isFinal;
     private boolean isInitialized;
-    protected Variable(String name,
+
+    /**
+     * default constructor of variable
+     * @param name name of variable
+     * @param layer layer of variable
+     * @param isFinal is variable final
+     * @param isInitialized is variable initialized
+     */
+    public Variable(String name,
                        int layer,
                        boolean isFinal,
                        boolean isInitialized) {
@@ -28,7 +39,20 @@ public abstract class Variable {
      * @return is the input valid or not
      */
     public abstract boolean isValidInput(String input);
-    public abstract void updateValue(String input);
+
+    /**
+     * this function sets
+     * the value of the certain variable
+     * @param input the value we need to set
+     */
+    public abstract void setValue(String input);
+
+    /**
+     * this function initializes
+     * the value of the certain variable
+     * @param input the value we need to implement in the initializes variable
+     */
+    public abstract void initializeValue(String input);
 
     // this function checks is a name of a variable is valid
     // if not throwing relevant exception
@@ -53,15 +77,23 @@ public abstract class Variable {
     }
 
     // getters
+
+    // return is a variable is final
     public boolean isFinal() {
         return this.isFinal;
     }
+
+    // return is a variable initialized
     public boolean isInitialized() {
         return this.isInitialized;
     }
+
+    // returns the name of the variable
     public String getName() {
         return this.name;
     }
+
+    // returns the layer of the object
     public int getLayer() {
         return this.layer;
     }
