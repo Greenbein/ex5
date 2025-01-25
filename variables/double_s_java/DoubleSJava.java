@@ -2,12 +2,12 @@ package variables.double_s_java;
 
 import variables.Variable;
 import variables.double_s_java.exceptions.InvalidDoubleException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DoubleSJava extends Variable {
     private int value;
+
     public DoubleSJava(String name, int layer, boolean isFinal, boolean isInitialized, String value) {
         super(name, layer, isFinal, isInitialized);
         if(this.isValidInput(value)){
@@ -16,6 +16,15 @@ public class DoubleSJava extends Variable {
         else{
             throw new InvalidDoubleException();
         }
+    }
+
+    public DoubleSJava(String name, int layer, boolean isFinal, boolean isInitialized) {
+        super(name, layer, isFinal, false);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
     }
 
     @Override

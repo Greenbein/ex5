@@ -44,7 +44,7 @@ public class StringSJava extends Variable {
     }
     @Override
     public void setValue(String input) {
-        if(this.isValidInput(input)){
+        if(!this.isFinal()){
             throw new InvalidSetFinalVariableException();
         }
         if(isValidInput(input)){
