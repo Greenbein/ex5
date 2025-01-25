@@ -94,13 +94,19 @@ public class Variable {
      * @return is the input valid or not
      */
     public boolean isValidInput(String input, VariableType type){
-        return switch (type) {
-            case INTEGER -> isValidInputForInteger(input);
-            case DOUBLE -> isValidInputForDouble(input);
-            case BOOLEAN -> isValidInputForBoolean(input);
-            case STRING -> isValidInputForString(input);
-            case CHAR -> isValidInputForChar(input);
+        switch (type) {
+            case INTEGER:
+                return isValidInputForInteger(input);
+            case DOUBLE:
+                return isValidInputForDouble(input);
+            case BOOLEAN:
+                return isValidInputForBoolean(input);
+            case STRING:
+                return isValidInputForString(input);
+            case CHAR:
+                return isValidInputForChar(input);
         };
+        return false;
     }
 
     /**
@@ -498,10 +504,4 @@ public class Variable {
         return this.layer;
     }
 
-    public void setValue(Object value) {
-        this.value = value;
-    }
-    public Object getValue() {
-        return value;
-    }
 }
