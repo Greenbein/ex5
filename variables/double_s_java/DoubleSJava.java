@@ -45,9 +45,14 @@ public class DoubleSJava extends Variable {
      */
     @Override
     public boolean isValidInput(String input) {
-        Pattern p = Pattern.compile("^[+-]?(\\d*.\\d+|^[+-]?\\d+.\\d*)$");
-        Matcher m = p.matcher(input);
-        return m.matches();
+        Pattern pDouble = Pattern.compile("^[+-]?(\\d*.\\d+|^[+-]?\\d+.\\d*)$");
+        Pattern pInteger = Pattern.compile("^[+-]?\\d+$");
+        Matcher mInteger = pInteger.matcher(input);
+        if(mInteger.matches()) {
+            return true;
+        }
+        Matcher mDouble = pDouble.matcher(input);
+        return mDouble.matches();
     }
 
     /**
