@@ -7,12 +7,30 @@ import variables.string_s_java.exceptions.InvalidStringInputException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * this class implement the variable string in java
+ */
 public class StringSJava extends Variable {
     private String value;
+
+    /**
+     * initialized constructor of String
+     * @param name name of the string variable
+     * @param layer layer of the string variable
+     * @param isFinal is the String variable final
+     * @param value the value of the string variable
+     */
     public StringSJava(String name, int layer, boolean isFinal, String value) {
         super(name, layer, isFinal, true);
         initializeValue(value);
     }
+
+    /**
+     * not initialized constructor of String
+     * @param name name of the string variable
+     * @param layer layer of the string variable
+     * @param isFinal is the String variable final
+     */
     public StringSJava(String name, int layer, boolean isFinal) {
         super(name, layer, isFinal, false);
     }
@@ -24,7 +42,7 @@ public class StringSJava extends Variable {
     /**
      * checks is the input of the variable valid
      * @param input the input of the variable
-     * @return
+     * @return is the input is valid
      */
     @Override
     public boolean isValidInput(String input) {
@@ -33,6 +51,11 @@ public class StringSJava extends Variable {
         return !m.matches();
 
     }
+
+    /**
+     * this function initializes String variable
+     * @param input the value we need to implement in the initializes variable
+     */
     @Override
     public void initializeValue(String input) {
          if(this.isValidInput(input)){
@@ -42,9 +65,15 @@ public class StringSJava extends Variable {
              throw new InvalidStringInputException(this.getName());
          }
     }
+
+    /**
+     * this function set value for a variable of type
+     * String
+     * @param input the value we need to set
+     */
     @Override
     public void setValue(String input) {
-        if(!this.isFinal()){
+        if(this.isFinal()){
             throw new InvalidSetFinalVariableException();
         }
         if(isValidInput(input)){

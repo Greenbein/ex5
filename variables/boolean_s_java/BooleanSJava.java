@@ -1,11 +1,17 @@
 package variables.boolean_s_java;
 
 import variables.Variable;
+import variables.basic_exceptions.InvalidSetFinalVariableException;
+import variables.boolean_s_java.exceptions.InvalidBooleanException;
 import variables.double_s_java.exceptions.InvalidDoubleException;
+import variables.string_s_java.exceptions.InvalidStringInputException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * this class implements the variable boolean at java
+ */
 public class BooleanSJava extends Variable {
     private static final String DOUBLE = "double";
     private static final String INTEGER = "integer";
@@ -23,12 +29,7 @@ public class BooleanSJava extends Variable {
      */
     public BooleanSJava(String name, int layer, boolean isFinal,String value) {
         super(name, layer, isFinal, true);
-        if(isValidInput(value)){
-            updateValue(value);
-        }
-        else{
-            throw new InvalidDoubleException();
-        }
+        initializeValue(value);
     }
 
     /**
@@ -51,6 +52,27 @@ public class BooleanSJava extends Variable {
         if(checkIsInputInteger(input)){return true;}
         if(checkIsInputDouble(input)){return true;}
         return checkIsInputBoolean(input);
+    }
+
+    /**
+     * this function set the value of a boolean variable
+     * @param input the value we need to set
+     */
+    @Override
+    public void setValue(String input) {
+        if(this.isFinal()){
+            throw new InvalidSetFinalVariableException();
+        }
+        updateValue(input);
+    }
+
+    /**
+     * this function initializes the value of a boolean variable
+     * @param input the value we need to implement in the initializes variable
+     */
+    @Override
+    public void initializeValue(String input) {
+       updateValue(input);
     }
 
     // checks is String input represents a boolean
@@ -92,26 +114,6 @@ public class BooleanSJava extends Variable {
         return false;
     }
 
-    /**
-     * this function update the string that represent the input we got
-     *  into the value of our boolean parameter
-     * @param input string that represent the input of boolean parameter
-     */
-    @Override
-    public void updateValue(String input) {
-        String cleanedInput;
-        switch(this.valueType){
-            case INTEGER:
-                switchIntegerToBoolean(input);
-                break;
-            case DOUBLE:
-               switchDoubleToBoolean(input);
-               break;
-            default:
-                switchBooleanToBoolean(input);
-        }
-    }
-
     // switches a string that represents integer into a boolean
     private void switchIntegerToBoolean(String input){
         String cleanedInput = input.replaceFirst
@@ -145,6 +147,26 @@ public class BooleanSJava extends Variable {
         }
         else if(input.equals(FALSE)){
             this.value = false;
+        }
+    }
+
+    // this function updates the value of boolean variable
+    private void updateValue(String input){
+        if(isValidInput(input)){
+            switch(this.valueType){
+                case INTEGER:
+                    switchIntegerToBoolean(input);
+                    break;
+                case DOUBLE:
+                    switchDoubleToBoolean(input);
+                    break;
+                default:
+                    switchBooleanToBoolean(input);
+                    break;
+            }
+        }
+        else{
+            throw new InvalidBooleanException();
         }
     }
 }
