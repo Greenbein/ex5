@@ -102,5 +102,4 @@ public abstract class Variable {
         return this.layer;
     }
 
-
 }
