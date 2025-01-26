@@ -1,7 +1,7 @@
 package managers;
 
 import variables.Variable;
-import variables.exceptions.InvalidBooleanException;
+import variables.exceptions.input_exceptions.InvalidBooleanException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

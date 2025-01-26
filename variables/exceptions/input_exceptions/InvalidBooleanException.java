@@ -1,4 +1,4 @@
-package variables.exceptions;
+package variables.exceptions.input_exceptions;
 
 /**
  * class of boolean exception

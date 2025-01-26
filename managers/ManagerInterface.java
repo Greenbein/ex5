@@ -2,6 +2,7 @@ package managers;
 
 import variables.Variable;
 import variables.exceptions.*;
+import variables.exceptions.input_exceptions.*;
 
 /**
  * Interface for managers

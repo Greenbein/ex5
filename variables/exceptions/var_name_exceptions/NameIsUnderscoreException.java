@@ -1,4 +1,4 @@
-package variables.exceptions;
+package variables.exceptions.var_name_exceptions;
 
 /**
  *  Exception for a name that is exactly an underscore (_),

@@ -1,4 +1,4 @@
-package variables.exceptions;
+package variables.exceptions.input_exceptions;
 
 public class InvalidIntegerException extends RuntimeException {
     private static final String INVALID_INTEGER_MESSAGE =

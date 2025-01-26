@@ -2,6 +2,9 @@ package variables;
 
 import managers.*;
 import variables.exceptions.*;
+import variables.exceptions.var_name_exceptions.InvalidFormatName;
+import variables.exceptions.var_name_exceptions.NameStartsWithDoubleUnderscoreException;
+import variables.exceptions.var_name_exceptions.NameStartsWithNumberException;
 
 /**
  * This class implements java variable
