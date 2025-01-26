@@ -1,6 +1,6 @@
-import databases.VariableDataBase;
-import variables.exceptions.JavaDocException;
+package row_processing;
 
+import databases.VariableDataBase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -79,16 +79,6 @@ public class RowProcessing {
 
     private void processDeclarationOrAssignment() {
 
-    }
-
-    private void checkSlash(String text, int lineNumber) {
-        if(text.startsWith("//")){
-            return;
-        }
-        // /* */ /**
-        if(text.contains("/")){
-            throw new JavaDocException(lineNumber);
-        }
     }
 
 

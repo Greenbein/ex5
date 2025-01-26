@@ -29,7 +29,7 @@ public class RowValidations {
         // sentence must end with ';' , '{' or '}'
         if(!(text.strip().endsWith(";")||text.strip().endsWith("{")
                 ||text.strip().endsWith("}"))){
-            throw new InvalidEndingForSentence(lineNumber);
+            throw new InvalidEndingForSentenceException(lineNumber);
         }
         String [] textWords = text.split("\\s+");
         int initializersOccasionsInARow = 0;
