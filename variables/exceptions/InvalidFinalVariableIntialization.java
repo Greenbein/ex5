@@ -5,7 +5,7 @@ package variables.exceptions;
  */
 public class InvalidFinalVariableIntialization extends RuntimeException {
     private static final String DEFAULT_MESSAGE =
-            "Invalid initializing: if a variable is final must be initialized";
+            "Invalid initializing: final variable must be initialized";
 
     /**
      * default constructor exception

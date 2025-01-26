@@ -4,13 +4,13 @@ package variables.exceptions;
  * class of boolean exception
  */
 public class InvalidBooleanException extends RuntimeException {
-    private static final String INVALID_BOOLEAN_INPUT =
-          "Invalid value for boolean variable called ";
+    private static final String INVALID_BOOLEAN_MESSAGE =
+            "\nInvalid value for boolean: ";
 
   /**
    * constructor of boolean exception
    */
-  public InvalidBooleanException() {
-        super(INVALID_BOOLEAN_INPUT);
+  public InvalidBooleanException(String varName) {
+        super(INVALID_BOOLEAN_MESSAGE+varName);
     }
 }
