@@ -2,10 +2,13 @@ package managers;
 
 import variables.Variable;
 import variables.exceptions.InvalidBooleanException;
-import variables.exceptions.InvalidSetFinalVariableException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The class allows us to process inputs for boolean variables,
+ * initialize and update them
+ */
 public class BooleanManager implements ManagerInterface<Boolean> {
     private static final String DOUBLE = "double";
     private static final String INTEGER = "integer";
@@ -16,6 +19,12 @@ public class BooleanManager implements ManagerInterface<Boolean> {
     private final Variable variable;
     private String valueTypeForBoolean;
 
+    /**
+     * Constructor for BooleanManager
+     * @param integerManager - manager for Integer
+     * @param doubleManager - manager for Double
+     * @param variable - the variable we work with
+     */
     public BooleanManager(IntegerManager integerManager, DoubleManager doubleManager, Variable variable) {
         this.integerManager = integerManager;
         this.doubleManager = doubleManager;
@@ -57,6 +66,11 @@ public class BooleanManager implements ManagerInterface<Boolean> {
         return input.equals(TRUE);
     }
 
+    /**
+     * this function returns is the string represents an input of a boolean
+     * @param input the input of the variable
+     * @return  is the input represents an input of a boolean
+     */
     @Override
     public boolean isValidInput(String input) {
         if(this.integerManager.isValidInput(input)){
@@ -70,6 +84,11 @@ public class BooleanManager implements ManagerInterface<Boolean> {
         return checkIsInputBoolean(input);
     }
 
+    /**
+     * Extract boolean value from input string (when the input is already verified)
+     * @param input - String with input
+     * @return - boolean variable
+     */
     @Override
     public Boolean extractValue(String input) {
         if(this.isValidInput(input)){
@@ -84,10 +103,12 @@ public class BooleanManager implements ManagerInterface<Boolean> {
         }
     }
 
+    // set a new valueTypeForBoolean
     private void setValueTypeForBoolean(String valueTypeForBoolean) {
         this.valueTypeForBoolean = valueTypeForBoolean;
     }
 
+    // get valueTypeForBoolean
     private String getValueTypeForBoolean(){
         return this.valueTypeForBoolean;
     }

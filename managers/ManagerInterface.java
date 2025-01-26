@@ -3,9 +3,29 @@ package managers;
 import variables.Variable;
 import variables.exceptions.*;
 
+/**
+ * Interface for managers
+ * @param <T> - variable's type
+ */
 public interface ManagerInterface<T> {
+    /**
+     * Check if the input is valid for some variable type
+     * @param input - input for variable
+     * @return true or false
+     */
     boolean isValidInput(String input);
+
+    /**
+     * Extract value for some variable type from its input string
+     * @param input - string contains variable's value
+     * @return - value of type T (generics)
+     */
     T extractValue(String input);
+
+    /**
+     * Throw invalid input exception according to variable's type
+     * @param variable - variable
+     */
     default void throwInvalidInputException(Variable variable){
         switch (variable.getValueType()){
             case INTEGER:
@@ -21,6 +41,7 @@ public interface ManagerInterface<T> {
 
         }
     }
+    //default methods
     default void initializeValue(String input, Variable variable){
         if(isValidInput(input)){
             variable.setValue(this.extractValue(input));
