@@ -1,10 +1,8 @@
 package variables;
 
 import managers.*;
+import variables.exceptions.var_name_exceptions.*;
 import variables.exceptions.*;
-import variables.exceptions.var_name_exceptions.InvalidFormatName;
-import variables.exceptions.var_name_exceptions.NameStartsWithDoubleUnderscoreException;
-import variables.exceptions.var_name_exceptions.NameStartsWithNumberException;
 
 /**
  * This class implements java variable
@@ -33,11 +31,11 @@ public class Variable {
         updateName(name);
         // the variable can't be final without being initialized
         if(!isInitialized && isFinal) {
-            throw new InvalidFinalVariableIntialization();
+            throw new InvalidFinalVariableInitializationException();
         }
         // uninitialized variable does not have any value in it
         if (!isInitialized && value != null) {
-            throw new AssignNonInitializedVariableError(name);
+            throw new AssignNonInitializedVariableException(name);
         }
         this.layer = layer;
         this.isFinal = isFinal;
@@ -57,7 +55,7 @@ public class Variable {
         updateName(name);
         this.layer = layer;
         if(isFinal) {
-            throw new InvalidFinalVariableIntialization();
+            throw new InvalidFinalVariableInitializationException();
         }
         this.isFinal = false;
         this.isInitialized = false;
@@ -142,12 +140,21 @@ public class Variable {
         }
        if(!name.matches("^\\w+$")){
            // exception illegal format using invalid format
-           throw new InvalidFormatName();
+           throw new InvalidFormatNameException();
+       }
+       if(name.equals("int")||name.equals("double")||name.equals("char")
+               ||name.equals("String")||name.equals("boolean")){
+           throw new NameAfterVariableException();
+       }
+       if(name.equals("final")){
+           throw new InvalidNameFinalException();
        }
        else{
            this.name = name;
        }
     }
+
+    //-------------------------getters-----------------------------//
     /**
      * check if the variable is final or not
      * @return isFinal status
@@ -188,18 +195,19 @@ public class Variable {
     }
 
     /**
-     * set variable's value
-     * @param value - new value
-     */
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    /**
      * get variable type
      * @return enum VariableType
      */
     public VariableType getValueType() {
         return this.type;
+    }
+
+    //-------------------------setters-----------------------------//
+    /**
+     * set variable's value
+     * @param value - new value
+     */
+    public void setValue(Object value) {
+        this.value = value;
     }
 }

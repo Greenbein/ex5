@@ -3,7 +3,7 @@ package variables.exceptions;
 /**
  * AssignNonInitializedVariableError exception class
  */
-public class AssignNonInitializedVariableError extends RuntimeException {
+public class AssignNonInitializedVariableException extends RuntimeException {
     private static final String DEFAULT_MESSAGE_FIRST_PART =
             "You can't assign the variable: ";
     private static final String DEFAULT_MESSAGE_SECOND_PART =
@@ -12,7 +12,7 @@ public class AssignNonInitializedVariableError extends RuntimeException {
     /**
      * default constructor exception
      */
-    public AssignNonInitializedVariableError(String name) {
+    public AssignNonInitializedVariableException(String name) {
         super(DEFAULT_MESSAGE_FIRST_PART + name + DEFAULT_MESSAGE_SECOND_PART);
     }
 }
