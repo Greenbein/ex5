@@ -1,9 +1,8 @@
 package variables;
 
 import managers.*;
-import variables.exceptions.var_name_exceptions.*;
 import variables.exceptions.*;
-
+import valid_name.*;
 /**
  * This class implements java variable
  */
@@ -32,10 +31,6 @@ public class Variable {
         // the variable can't be final without being initialized
         if(!isInitialized && isFinal) {
             throw new InvalidFinalVariableInitializationException();
-        }
-        // uninitialized variable does not have any value in it
-        if (!isInitialized && value != null) {
-            throw new AssignNonInitializedVariableException(name);
         }
         this.layer = layer;
         this.isFinal = isFinal;
@@ -123,35 +118,12 @@ public class Variable {
         }
     }
 
-    // this function checks is a name of a variable is valid
+    // this function checks and apply a name to a variable if it is valid
     // if not throwing relevant exception
     private void updateName(String name){
-        if(name.equals("_")){
-            // exception name is only _
-            throw new NameStartsWithNumberException();
+        if(ValidName.isValidVariableName(name)){
+            this.name = name;
         }
-        if(name.matches("^__.*")){
-            // exception starts with double __
-            throw new NameStartsWithDoubleUnderscoreException();
-        }
-        if(name.matches("^\\d{1}.*")){
-            // exception starts with a number
-            throw new NameStartsWithNumberException();
-        }
-       if(!name.matches("^\\w+$")){
-           // exception illegal format using invalid format
-           throw new InvalidFormatNameException();
-       }
-       if(name.equals("int")||name.equals("double")||name.equals("char")
-               ||name.equals("String")||name.equals("boolean")){
-           throw new NameAfterVariableException();
-       }
-       if(name.equals("final")){
-           throw new InvalidNameFinalException();
-       }
-       else{
-           this.name = name;
-       }
     }
 
     //-------------------------getters-----------------------------//

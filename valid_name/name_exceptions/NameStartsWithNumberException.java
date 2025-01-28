@@ -1,4 +1,4 @@
-package variables.exceptions.var_name_exceptions;
+package valid_name.name_exceptions;
 
 /**
  * exception for a name that starts with a number

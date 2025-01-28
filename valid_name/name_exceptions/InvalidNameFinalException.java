@@ -1,4 +1,4 @@
-package variables.exceptions.var_name_exceptions;
+package valid_name.name_exceptions;
 
 /**
  * exception for the case name is final

@@ -1,12 +1,15 @@
 package row_processing;
 
 import row_processing.exceptions.*;
-import variables.exceptions.var_name_exceptions.NameAfterVariableException;
+import valid_name.name_exceptions.NameAfterVariableException;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RowValidations {
     private void checkSlash(String text, int lineNumber) {
         // empty line return
-        if(text.strip().isEmpty()){
+        if(text.isBlank()){
             return;
         }
         // if line starts with single line comment return
@@ -53,5 +56,32 @@ public class RowValidations {
         if(initializersOccasionsInARow > 1){
             throw new NameAfterVariableException();
         }
+    }
+    public static boolean isCorrectFormatFunction(String code) {
+        String START = "void\\s+\\w+\\s*\\(";
+        String PARAMETERS_FUNCTION_WITH_COMMA = "(\\s*final\\s+\\w+\\s+\\w+\\s*,\\s*|" +
+                "\\s*\\w+\\s+\\w+\\s*,\\s*)*\\s*";
+        String PARAMETER_FUNCTION_WITHOUT_COMMA = "(\\s*final\\s+\\w+\\s+\\w+\\s*|" +
+                "\\s*\\w+\\s+\\w+\\s*)";
+        String END = "\\)\\s*\\{\\s*$";
+
+        String functionFormat_2 = START+
+                                  PARAMETERS_FUNCTION_WITH_COMMA+
+                                  PARAMETER_FUNCTION_WITHOUT_COMMA+
+                                  END;
+        Pattern functionP = Pattern.compile(functionFormat_2);
+        Matcher functionM = functionP.matcher(code);
+        return functionM.matches();
+
+
+        //        if (startsWithPattern(code, STARTS_WITH_FINAL)) {
+//            String secondPartOfCode = extractStringAfterWord(code, "final");
+//            // we checked mixed because we want to check is there a variable
+//            // not initialized in variable and throw there the specific exception
+//            Pattern pattern = Pattern.compile(MIXED);
+//            Matcher matcher = pattern.matcher(secondPartOfCode);
+//            return matcher.matches();
+//        }
+//        return false;
     }
 }
