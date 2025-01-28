@@ -35,6 +35,11 @@ public class FileReaderJavaS {
             }
         }
         catch (IOException e) {
+//            throw new  e.p();
+               return 2;
+        }
+        catch (InvalidMultiLineCommentException|JavaDocException
+                |InvalidSingleCommentLineException|InvalidEndingForSentenceException e) {
             System.err.println(e.getMessage());
             return 1;
         }
