@@ -1,4 +1,4 @@
-package managers;
+package variables.variable_managers;
 
 import variables.Variable;
 import variables.exceptions.input_exceptions.InvalidBooleanException;

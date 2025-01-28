@@ -1,4 +1,4 @@
-package row_processing.exceptions;
+package code_processing.exceptions;
 
 /**
  * Exception for the case of an invalid sentence ending

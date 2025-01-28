@@ -1,4 +1,4 @@
-package managers;
+package variables.variable_managers;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package managers;
+package variables.variable_managers;
 
 import variables.exceptions.input_exceptions.InvalidIntegerException;
 

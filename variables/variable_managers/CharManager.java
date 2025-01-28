@@ -1,4 +1,4 @@
-package managers;
+package variables.variable_managers;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +19,8 @@ public class CharManager implements ManagerInterface<Character>{
      */
     @Override
     public boolean isValidInput(String input) {
-        Pattern p = Pattern.compile("^[^\\\\'\",]$");
+//        System.out.println("INPUT CHAR: " + input);
+        Pattern p = Pattern.compile("^'.{1}'$"); // Updated regex
         Matcher m = p.matcher(input);
         return m.matches();
     }
@@ -31,6 +32,6 @@ public class CharManager implements ManagerInterface<Character>{
      */
     @Override
     public Character extractValue(String input) {
-        return input.charAt(0);
+        return input.charAt(1);
     }
 }

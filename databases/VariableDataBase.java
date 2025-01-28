@@ -1,7 +1,6 @@
 package databases;
 
 import variables.Variable;
-
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -35,4 +34,16 @@ public class VariableDataBase {
     public void removeLayer(int layer) {
         this.varDataBase.remove(layer);
     }
+
+    public String toString() {
+        String result = "VariableDataBase:\n";
+        for (Integer layer : varDataBase.keySet()) {
+            result += "Layer " + layer + ":\n";
+            for (Variable variable : varDataBase.get(layer)) {
+                result += "  " + variable.toString() + "\n"; // Assumes Variable has a toString method
+            }
+        }
+        return result;
+    }
+
 }

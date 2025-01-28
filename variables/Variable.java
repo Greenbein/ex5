@@ -1,8 +1,9 @@
 package variables;
 
-import managers.*;
 import variables.exceptions.*;
 import valid_name.*;
+import variables.variable_managers.*;
+
 /**
  * This class implements java variable
  */
@@ -181,5 +182,17 @@ public class Variable {
      */
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    public String toString() {
+        if (this.isFinal) {
+            return "final " + this.type.toString() + " " + this.name + " = " + this.value.toString();
+        } else {
+            if (this.isInitialized) {
+                return this.type.toString() + " " + this.name + " = " + this.value.toString();
+            } else {
+                return this.type.toString() + " " + this.name;
+            }
+        }
     }
 }

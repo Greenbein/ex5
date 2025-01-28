@@ -1,4 +1,4 @@
-package row_processing.exceptions;
+package code_processing.exceptions;
 
 /**
  * exception for the case we java doc comment

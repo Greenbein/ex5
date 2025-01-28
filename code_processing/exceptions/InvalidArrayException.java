@@ -1,4 +1,4 @@
-package row_processing.exceptions;
+package code_processing.exceptions;
 
 public class InvalidArrayException extends RuntimeException {
     private static final String DEFAULT_MESSAGE =

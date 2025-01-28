@@ -1,7 +1,7 @@
-import row_processing.exceptions.InvalidEndingForSentenceException;
-import row_processing.exceptions.InvalidMultiLineCommentException;
-import row_processing.exceptions.InvalidSingleCommentLineException;
-import row_processing.exceptions.JavaDocException;
+import code_processing.exceptions.InvalidEndingForSentenceException;
+import code_processing.exceptions.InvalidMultiLineCommentException;
+import code_processing.exceptions.InvalidSingleCommentLineException;
+import code_processing.exceptions.JavaDocException;
 
 import java.io.*;
 import java.util.regex.Matcher;
