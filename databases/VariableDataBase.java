@@ -39,7 +39,7 @@ public class VariableDataBase {
 
 
     public Variable findAvailableVariableByName(String varName, int myLayer, VariableType myType, boolean myIsFinalStatus) {
-        for (int layer = myLayer; layer >myLayer-2; layer--) {
+        for (int layer = myLayer; layer >=0; layer--) {
             HashSet<Variable> vars = this.varDataBase.get(layer);
             for (Variable var : vars) {
                 if(var.getName().equals(varName) && var.isInitialized()&& var.getValueType().equals(myType)) {
