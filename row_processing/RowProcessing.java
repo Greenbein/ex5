@@ -9,59 +9,65 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RowProcessing {
-    // different variables without assignment
-    //int x, y, z;
-    private static final String regexOne
-            = "^(int|double|String|boolean|char)\\s+\\w+" +
-            "(?:\\s*,\\s*\\w+)*\\s*;\\s*$";
-    // different variables someone with assignment and someone without
-    //int i1, i2 = 6;
-    private static final String regexTwo =
-           "^(int|double|String|boolean|char)\\s+\\w+(?:\\s*(?:=\\s*\\w+)?" +
-                   "\\s*,\\s*\\w+(?:\\s*=\\s*\\w+)?)*\\s*;\\s*$";
+//     private static final String INPUT_REGEX = "[^\\s*]+";
+    private static final String INPUT_REGEX = "(\'.*\'|\".*\"|\\w+|[+-]*(\\d+|\\d*.\\d*))";
+    private static final String TYPES_REGEX = "\\s*(int|double|String|boolean|char)";
+    private static final String VAR_NAME_REGEX = "\\w+";
 
-    // Single variable without or with assignment
-    //int a = 5;
-    //String  b  =  "hello";
-    //char i1;
-    //double i1 = -.3;
-    private static final String regexThree =
-            "^(int|double|String|boolean|char)\\s+\\w+(?:\\s*=\\" +
-                    "s*(?:\\w+|[+-]?\\d*(\\.\\d+)?|\".*\"))?\\s*;\\s*$";
+//    private static final String MIXED_SIMPLE = "^(int|double|String|char|boolean)\\s+(\\w+\\s*,\\s*|\\w+\\s*=\\s*(\".*?\"|\\w+|[+,-]*(\\d|(\\d*.\\d+)))\\s*,\\s*)*(\\w+\\s*|\\w+\\s*=\\s*(\".*?\"|\\w+|[+,-]*(\\d|(\\d*.\\d+)))\\s*);$";
+//    private static final String INITIALIZED_SIMPLE = "^(int|double|String|char|boolean)\\s+(\\w+\\s*=\\s*(\".*?\"|\\w+|[+,-]*(\\d|(\\d*.\\d+)))\\s*,\\s*)*(\\w+\\s*=\\s*(\".*?\"|\\w+|[+,-]*(\\d|(\\d*.\\d+)))\\s*);$";
+//    private static final String UNINITIALIZED_SIMPLE = "^(int|double|String|char|boolean)\\s+(\\w+\\s*,\\s*)*(\\w+\\s*);$";
+//    private static final String FINAL_SIMPLE ="^final\\s+(int|double|String|char|boolean)\\s+(\\w+\\s*=\\s*(\".*?\"|\\w+|[+,-]*(\\d|(\\d*.\\d+)))\\s*,\\s*)*(\\w+\\s*=\\s*(\".*?\"|\\w+|[+,-]*(\\d|(\\d*.\\d+)))\\s*);$";
 
+    private static final String MIXED =
+            "^"
+            +TYPES_REGEX
+            +"\\s+("
+            +VAR_NAME_REGEX
+            +"\\s*,\\s*|"
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*,\\s*)*("
+            +VAR_NAME_REGEX
+            +"\\s*|"
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*);$";
 
-    private static final String regexFour =
-            "^final\\s+(int|double|String|boolean|char)\\s+\\w+\\s*=\\" +
-                    "s*[+-]?\\d+(?:,\\s*\\w+\\s*=\\s*[+-]?\\d+)*\\s*;$";
+    private static final String INITIALIZED_ONLY = "^"
+            +TYPES_REGEX
+            +"\\s+("
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*,\\s*)*("
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*);$";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private static final String DOUBLE = "double";
-    private static final String INTEGER = "integer";
-    private static final String STRING = "String";
-    private static final String BOOLEAN = "boolean";
-    private static final String CHAR = "char";
-    private static final ArrayList<String> TYPES_LIST = new ArrayList<>(
-            Arrays.asList(DOUBLE, INTEGER, STRING, BOOLEAN, CHAR)
-    );
+    private static final String UNINITIALIZED_ONLY = "^"
+            +TYPES_REGEX
+            +"\\s+("
+            +VAR_NAME_REGEX
+            +"\\s*,\\s*)*("
+            +VAR_NAME_REGEX
+            +"\\s*);$";
+    private static final String FINAL = "^final\\s+"
+            +TYPES_REGEX
+            +"\\s+("
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*,\\s*)*("
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*);$";
+    private static final String STARTS_WITH_FINAL = "^\\s*final\\s+";
+    private static final String STARTS_WITH_VAR_TYPE = "^\\s*(int|double|String|boolean|char)\\b.*";
 
     private final String text;
     private final int currentLayer;
@@ -73,11 +79,66 @@ public class RowProcessing {
         this.currentLine = currentLine;
         this.variableDataBase = variableDataBase;
     }
-    private void processRowMultipleVariables() {
 
+
+
+
+    public static String extractStringAfterWord(String code, String word) {
+        int index = code.indexOf(word);
+        if (index == -1) return code; // Return the original string if the word is not found
+        return code.substring(index + word.length()).trim();
     }
 
-    private void processDeclarationOrAssignment() {
+    public static boolean startsWithPattern(String code, String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(code);
+        return matcher.matches();
+    }
+
+    //-----------------------Final-------------------------
+    public static boolean isCorrectFormatFinal(String code) {
+        if (startsWithPattern(code, STARTS_WITH_FINAL)) {
+            String secondPartOfCode = extractStringAfterWord(code, "final");
+            Pattern pattern = Pattern.compile(INITIALIZED_ONLY);
+            Matcher matcher = pattern.matcher(secondPartOfCode);
+            return matcher.matches();
+        }
+        return false;
+    }
+    //------------------------------------------------------
+
+    //-------------------definition or initialization of variables------
+    public static boolean isMixed(String code) {
+        if (startsWithPattern(code, STARTS_WITH_VAR_TYPE)) {
+            Pattern patternMixed = Pattern.compile(MIXED);
+            Matcher matcher = patternMixed.matcher(code);
+            return matcher.matches();
+        }
+        return false;
+    }
+
+    public static boolean isInitializationOnly(String code) {
+        if (startsWithPattern(code, STARTS_WITH_VAR_TYPE)) {
+            Pattern patternMixed = Pattern.compile(INITIALIZED_ONLY);
+            Matcher matcher = patternMixed.matcher(code);
+            return matcher.matches();
+        }
+        return false;
+    }
+
+    public static boolean isDefinitionOnly(String code) {
+        if (startsWithPattern(code, STARTS_WITH_VAR_TYPE)) {
+            Pattern patternMixed = Pattern.compile(UNINITIALIZED_ONLY);
+            Matcher matcher = patternMixed.matcher(code);
+            return matcher.matches();
+        }
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Pattern pattern = Pattern.compile(STARTS_WITH_VAR_TYPE);
+        String test = "double a=3, b ;";
+        System.out.println(isMixed(test));
 
     }
 
