@@ -1,4 +1,4 @@
-package row_processing.exceptions;
+package code_processing.exceptions;
 
 /**
  * this exception addresses the case we had invalid variable type

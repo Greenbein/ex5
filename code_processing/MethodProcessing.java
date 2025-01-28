@@ -1,6 +1,6 @@
-package row_processing;
+package code_processing;
 
-import row_processing.exceptions.invalidVariableTypeException;
+import code_processing.exceptions.invalidVariableTypeException;
 import valid_name.ValidName;
 import valid_name.name_exceptions.*;
 

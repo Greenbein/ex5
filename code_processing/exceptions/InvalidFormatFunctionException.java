@@ -1,4 +1,4 @@
-package row_processing.exceptions;
+package code_processing.exceptions;
 
 /**
  * this exception addresses the case the format of the function is incorrect

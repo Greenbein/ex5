@@ -1,12 +1,12 @@
+package code_processing;
+
 import code_processing.exceptions.InvalidEndingForSentenceException;
 import code_processing.exceptions.InvalidMultiLineCommentException;
 import code_processing.exceptions.InvalidSingleCommentLineException;
 import code_processing.exceptions.JavaDocException;
 
 import java.io.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import valid_name.*;
+
 public class FileReaderJavaS {
     public int readAndCheckBasicErrorFile(String inputFile) {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile))){
