@@ -187,11 +187,11 @@ public class RowProcessing {
             String value = subWords[1].trim();
 
 //            System.out.println("VAR NAME: "+varName+" VALUE: "+value);
-            Variable variable = new Variable(varName,layer,isFinal,true,type, value);
+            Variable variable = new Variable(varName,layer,isFinal,true,type, value,this.variableDataBase);
             variableDataBase.addVariable(variable);
         } else {
             String varName = code;
-            Variable variable = new Variable(varName,layer,isFinal,type);
+            Variable variable = new Variable(varName,layer,isFinal,type,this.variableDataBase);
             variableDataBase.addVariable(variable);
         }
     }
