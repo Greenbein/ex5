@@ -19,17 +19,9 @@ public class StringManager implements ManagerInterface<String> {
      */
     @Override
     public boolean isValidInput(String input) {
-//        Pattern p = Pattern.compile("^.*[\\\\'\",].*$");
-//        Matcher m = p.matcher(input);
-//        Pattern p2 = Pattern.compile("\".*\"");
-//        Matcher m2 = p2.matcher(input);
-
-
-
-        Pattern p = Pattern.compile("^\"[^\"]*\"$");
-        Matcher m3 = p.matcher(input);
-//        return !m.matches() && m2.matches();
-        return m3.matches();
+        Pattern patternString = Pattern.compile("^\"[^\"',\\\\]*\"$");
+        Matcher matcherString = patternString.matcher(input);
+        return matcherString.matches();
     }
 
     /**
@@ -40,6 +32,5 @@ public class StringManager implements ManagerInterface<String> {
     @Override
     public String extractValue(String input) {
         return input.substring(1, input.length() - 1);
-//        return input;
     }
 }

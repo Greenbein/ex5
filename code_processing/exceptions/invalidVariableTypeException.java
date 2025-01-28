@@ -5,11 +5,11 @@ package code_processing.exceptions;
  */
 public class invalidVariableTypeException extends RuntimeException {
     private static final String DEFAULT_MESSAGE =
-            "invalid variable type";
+            " : invalid variable type";
     /**
      * constructor for exception
      */
-    public invalidVariableTypeException() {
-        super(DEFAULT_MESSAGE);
+    public invalidVariableTypeException(String variableType) {
+        super(variableType + DEFAULT_MESSAGE);
     }
 }

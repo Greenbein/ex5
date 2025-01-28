@@ -1,8 +1,11 @@
 package code_processing.exceptions;
 
+/**
+ * exception for the case we locate an array in one of the lines
+ */
 public class InvalidArrayException extends RuntimeException {
     private static final String DEFAULT_MESSAGE =
-            " : array are not allowed to be used ";
+            " : array are not supported in Sjava ";
 
     /**
      * constructor for exception

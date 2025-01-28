@@ -42,9 +42,10 @@ public class RowValidations {
                 throw new InvalidUseOperatorsExceptions(lineNumber);
             }
             // array is invalid
-            if(word.equals("[]")){
-                throw new InvalidArrayException(lineNumber);
-            }
+            String finalArray = "\\s*final\\s+(int|boolean|char|String|double)\\s*[].*";
+            String notFinalArray = "\\s*(int|boolean|char|String|double)\\s*[].*";
+
+            //throw new InvalidArrayException(lineNumber); -----aaaaaaaaa excception---
             // we can transfer for variable name
             // not valid more than one initializer in one row
             if(word.equals("int")||word.equals("double")||word.equals("char")
