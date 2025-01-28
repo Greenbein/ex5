@@ -1,5 +1,6 @@
 package variables.variable_managers;
 
+import valid_name.ValidName;
 import variables.Variable;
 import variables.exceptions.*;
 import variables.exceptions.input_exceptions.*;
@@ -51,6 +52,7 @@ public interface ManagerInterface<T> {
             throwInvalidInputException(variable);
         }
     }
+
     default void setValue(String input, Variable variable){
         if(variable.isFinal()){
             throw new InvalidSetFinalVariableException();
@@ -62,4 +64,5 @@ public interface ManagerInterface<T> {
             throwInvalidInputException(variable);
         }
     }
+
 }

@@ -1,5 +1,6 @@
 package variables.variable_managers;
 
+import valid_name.ValidName;
 import variables.exceptions.input_exceptions.InvalidIntegerException;
 
 import java.util.regex.Matcher;
@@ -14,7 +15,6 @@ public class IntegerManager implements ManagerInterface<Integer> {
      * IntegerManager constructor
      */
     public IntegerManager() {}
-
     /**
      * Check if the input is correct
      * @param input - string for Integer variable value

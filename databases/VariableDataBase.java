@@ -1,6 +1,8 @@
 package databases;
 
 import variables.Variable;
+import variables.VariableType;
+
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -33,6 +35,19 @@ public class VariableDataBase {
      */
     public void removeLayer(int layer) {
         this.varDataBase.remove(layer);
+    }
+
+
+    public Variable findAvailableVariableByName(String varName, int myLayer, VariableType myType, boolean myIsFinalStatus) {
+        for (int layer = myLayer; layer >myLayer-2; layer--) {
+            HashSet<Variable> vars = this.varDataBase.get(layer);
+            for (Variable var : vars) {
+                if(var.getName().equals(varName) && var.isInitialized()&& var.getValueType().equals(myType)) {
+                    return var;
+                }
+            }
+        }
+        return null;
     }
 
     public String toString() {

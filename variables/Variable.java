@@ -1,8 +1,11 @@
 package variables;
 
+import databases.VariableDataBase;
 import variables.exceptions.*;
 import valid_name.*;
 import variables.variable_managers.*;
+
+import javax.lang.model.element.VariableElement;
 
 /**
  * This class implements java variable
@@ -14,6 +17,7 @@ public class Variable {
     private final boolean isInitialized;
     private final VariableType type;
     private Object value;
+    private VariableDataBase db;
 
     /**
      * default constructor of variable
@@ -27,7 +31,7 @@ public class Variable {
                        boolean isFinal,
                        boolean isInitialized,
                        VariableType type,
-                       String value) {
+                       String value, VariableDataBase db) {
         updateName(name);
         // the variable can't be final without being initialized
         if(!isInitialized && isFinal) {
@@ -37,6 +41,7 @@ public class Variable {
         this.isFinal = isFinal;
         this.isInitialized = isInitialized;
         this.type = type;
+        this.db = db;
         initializeValue(value);
     }
 
@@ -47,7 +52,7 @@ public class Variable {
      * @param isFinal - isFinal must be equal to false
      * @param type - variable's type
      */
-    public Variable(String name,int layer,boolean isFinal,VariableType type){
+    public Variable(String name,int layer,boolean isFinal,VariableType type,VariableDataBase db) {
         updateName(name);
         this.layer = layer;
         if(isFinal) {
@@ -56,6 +61,7 @@ public class Variable {
         this.isFinal = false;
         this.isInitialized = false;
         this.type = type;
+        this.db = db;
         this.value = null;
     }
 
@@ -95,6 +101,8 @@ public class Variable {
      * @param input the value we need to implement in the initializes variable
      */
     public void initializeValue(String input){
+
+
         IntegerManager integerManager = new IntegerManager();
         DoubleManager doubleManager = new DoubleManager();
         BooleanManager booleanManager = new BooleanManager(integerManager,doubleManager,this);

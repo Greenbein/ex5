@@ -75,23 +75,17 @@ public class RowProcessing {
     private static final String STARTS_WITH_FINAL = "^\\s*final\\b.*";
     private static final String STARTS_WITH_VAR_TYPE = "^\\s*(int|double|String|boolean|char)\\b.*";
 
-    private final String code;
-    private final int currentLayer;
     private VariableDataBase variableDataBase;
-    private final int currentLine;
-    public RowProcessing(String code, int currentLayer, int currentLine, VariableDataBase variableDataBase) {
-        this.code = code;
-        this.currentLayer = currentLayer;
-        this.currentLine = currentLine;
+    public RowProcessing(VariableDataBase variableDataBase) {
         this.variableDataBase = variableDataBase;
     }
 
-    private void processCode(){
-        if(isCorrectFormatFinal(this.code)){
-            extractDataFinal(this.code);
+    private void processCode(String code, int currentLayer, int currentLine) {
+        if(isCorrectFormatFinal(code)){
+            extractDataFinal(code,currentLayer,currentLine);
         }
-        else if (isMixed(this.code)){
-            extractDataMixed(this.code);
+        else if (isMixed(code)){
+            extractDataMixed(code,currentLayer,currentLine);
         }
     }
 
@@ -151,16 +145,16 @@ public class RowProcessing {
 //        return false;
 //    }
     // -------------------extract data final -----------------------------
-    private void extractDataFinal(String code) {
-        extractNewVarsFromRow(code,true,1);
+    private void extractDataFinal(String code, int currentLayer, int currentLine) {
+        extractNewVarsFromRow(code,true,1, currentLayer, currentLine);
     }
     // -------------------extract data mixed -----------------------------
-    private void extractDataMixed(String code) {
-        extractNewVarsFromRow(code,false,0);
+    private void extractDataMixed(String code, int currentLayer, int currentLine) {
+        extractNewVarsFromRow(code,false,0,currentLayer,currentLine);
     }
 
     //--------------------extract data from string -----------------
-    private void extractNewVarsFromRow(String code, boolean isFinal, int typeWordIndex){
+    private void extractNewVarsFromRow(String code, boolean isFinal, int typeWordIndex, int currentLayer, int currentLine) {
         Pattern pattern = Pattern.compile(EXTRACT_DATA_MIXED);
         Matcher matcher = pattern.matcher(code);
         ArrayList<String> subStrings = new ArrayList<>();
@@ -171,8 +165,7 @@ public class RowProcessing {
         if(typeWordIndex>0){
             subStrings.remove(typeWordIndex-1);
         }
-        System.out.println("SUB STRINGS:" +subStrings);
-        addNewVars(typeWord,subStrings,this.currentLayer,isFinal,this.variableDataBase);
+        addNewVars(typeWord,subStrings,currentLayer,isFinal,this.variableDataBase);
     }
 
     private void addNewVars(String typeStr,
@@ -184,6 +177,7 @@ public class RowProcessing {
             createVariable(type, subStrings.get(i), layer, isFinal,variableDataBase);
         }
     }
+
 
     private void createVariable(VariableType type, String code, int layer,  boolean isFinal,VariableDataBase variableDataBase) {
         code = code.trim();
@@ -203,11 +197,11 @@ public class RowProcessing {
     }
 
     public static void main(String[] args) {
-        String code1 = "int a = 2;";
+        String code1 = "int a=3,b=a;";
         System.out.println(code1);
         VariableDataBase variableDataBase1 = new VariableDataBase();
-        RowProcessing rowProcessing1 = new RowProcessing(code1, 1, 1, variableDataBase1);
-        rowProcessing1.processCode();
+        RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
+        rowProcessing1.processCode(code1,11,23);
         System.out.println(variableDataBase1);
 
     }
