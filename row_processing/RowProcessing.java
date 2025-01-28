@@ -99,7 +99,9 @@ public class RowProcessing {
     public static boolean isCorrectFormatFinal(String code) {
         if (startsWithPattern(code, STARTS_WITH_FINAL)) {
             String secondPartOfCode = extractStringAfterWord(code, "final");
-            Pattern pattern = Pattern.compile(INITIALIZED_ONLY);
+            // we checked mixed because we want to check is there a variable
+            // not initialized in variable and throw there the specific exception
+            Pattern pattern = Pattern.compile(MIXED);
             Matcher matcher = pattern.matcher(secondPartOfCode);
             return matcher.matches();
         }
