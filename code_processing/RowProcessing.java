@@ -340,7 +340,7 @@ public class RowProcessing {
     // main closed
 //    public static void main(String[] args) {
 //        String code1 = "double x=2.0,b=5;";
-//        String code2 = "void foo(int a){";
+//        String code2 = "int x  =3;";
 //        VariableDataBase variableDataBase1 = new VariableDataBase();
 //        RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
 //        rowProcessing1.processCode(code1,14,23);

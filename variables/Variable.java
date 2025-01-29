@@ -95,7 +95,7 @@ public class Variable {
         CharManager charManager = new CharManager();
         StringManager stringManager =  new StringManager();
         switch(type){
-            case INTEGER:
+            case INT:
                 integerManager.setValue(input,this);
                 break;
             case DOUBLE:
@@ -146,7 +146,7 @@ public class Variable {
         CharManager charManager = new CharManager();
         StringManager stringManager =  new StringManager();
         switch(this.type){
-            case INTEGER:
+            case INT:
                 integerManager.initializeValue(input,this);
                 break;
             case DOUBLE:

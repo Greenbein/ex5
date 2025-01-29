@@ -30,7 +30,7 @@ public interface ManagerInterface<T> {
      */
     default void throwInvalidInputException(Variable variable){
         switch (variable.getValueType()){
-            case INTEGER:
+            case INT:
                 throw new InvalidIntegerException(variable.getName());
             case DOUBLE:
                 throw new InvalidDoubleException(variable.getName());

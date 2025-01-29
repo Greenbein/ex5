@@ -1,6 +1,8 @@
 package methods;
 
 import variables.Variable;
+import variables.VariableType;
+
 import java.util.ArrayList;
 
 /**
@@ -8,16 +10,16 @@ import java.util.ArrayList;
  */
 public class Method {
     private String name;
-    private ArrayList<Variable> parameters;
+    private ArrayList<VariableType> parametersTypes;
 
     /**
      * Method constructor
      * @param name - method's name
-     * @param parameters - ArrayList of variables with default values
+     * @param parametersTypes - ArrayList of variables with default values
      */
-    public Method(String name, ArrayList<Variable> parameters) {
+    public Method(String name, ArrayList<VariableType> parametersTypes) {
         this.name = name;
-        this.parameters = parameters;
+        this.parametersTypes = parametersTypes;
     }
 
     /**
@@ -30,10 +32,10 @@ public class Method {
 
     /**
      * get all method's parameters
-     * @return array list of variables
+     * @return array list of types
      */
-    public ArrayList<Variable> getParameters() {
-        return parameters;
+    public ArrayList<VariableType> getParameterTypes() {
+        return parametersTypes;
     }
 
 
@@ -44,18 +46,14 @@ public class Method {
     public String toString() {
         String result = "method \"" + name + "\", parameters : {";
 
-        for (int i = 0; i < parameters.size(); i++) {
-            Variable var = parameters.get(i);
-            if (var.isFinal()) {
-                result += "final ";
-            }
-            result += var.getValueType().toString();
+        for (int i = 0; i < parametersTypes.size(); i++) {
+            VariableType type = parametersTypes.get(i);
+            result += type.toString();
 
-            if (i < parameters.size() - 1) {
+            if (i < parametersTypes.size() - 1) {
                 result += ",";
             }
         }
-
         result += "}";
         return result;
     }

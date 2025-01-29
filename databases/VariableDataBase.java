@@ -68,7 +68,7 @@ public class VariableDataBase {
      * this function searches in the database it there a variable with
      * the same name
      * @param varName the variable name we search
-     * @param myLayer layer we starting to search from
+     * @param myLayer layer we are starting to search from
      * @return the variable if we find it else null
      */
     public Variable findVarByNameOnly(String varName, int myLayer) {

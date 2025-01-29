@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  */
 public class BooleanManager implements ManagerInterface<Boolean> {
     private static final String DOUBLE = "double";
-    private static final String INTEGER = "integer";
+    private static final String INT = "int";
     private static final String TRUE = "true";
     private static final String FALSE = "false";
     private final IntegerManager integerManager;
@@ -78,7 +78,7 @@ public class BooleanManager implements ManagerInterface<Boolean> {
     @Override
     public boolean isValidInput(String input) {
         if(this.integerManager.isValidInput(input)){
-            this.setValueTypeForBoolean(INTEGER);
+            this.setValueTypeForBoolean(INT);
             return true;
         }
         if(this.doubleManager.isValidInput(input)){
@@ -100,7 +100,7 @@ public class BooleanManager implements ManagerInterface<Boolean> {
         }
         if(this.isValidInput(input)){
              switch (this.getValueTypeForBoolean()) {
-                case INTEGER :
+                case INT :
                     return switchIntegerToBoolean(input);
                 case DOUBLE :
                     return switchDoubleToBoolean(input);

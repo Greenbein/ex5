@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * this enum implements variable type for variable
  */
 public enum VariableType{
-    INTEGER, DOUBLE, BOOLEAN, STRING, CHAR;
+    INT, DOUBLE, BOOLEAN, STRING, CHAR;
 
     /**
      *
@@ -31,9 +31,6 @@ public enum VariableType{
             throw new IllegalArgumentException("Type cannot be null");
         }
         try {
-            if(type.equals("int")){
-                return VariableType.INTEGER;
-            }
             return VariableType.valueOf(type.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid VariableType: " + type);
@@ -52,7 +49,7 @@ public enum VariableType{
         Pattern patternInt = Pattern.compile("\\s*[+-]?\\d+\\s*");
         Matcher matcherInt = patternInt.matcher(input);
         if(matcherInt.matches()){
-            return VariableType.INTEGER;
+            return VariableType.INT;
         }
 
         Pattern patternDouble = Pattern.compile("[+-]?(\\d*\\.\\d+|\\d+\\.\\d*)");
@@ -70,16 +67,16 @@ public enum VariableType{
         return VariableType.CHAR;
     }
 
-    /**
-     * Check whether the provided type is legal
-     * @param type - gotten type
-     * @return boolean
-     */
-    public static boolean checkIfCorrectType(String type) {
-        System.out.println("TYYYYYYYYYPE: "+type);
-        Pattern pattern = Pattern.compile("^(int|double|String|boolean|char)$");
-        Matcher matcher = pattern.matcher(type);
-        return matcher.matches();
-    }
+//    /**
+//     * Check whether the provided type is legal
+//     * @param type - gotten type
+//     * @return boolean
+//     */
+//    public static boolean checkIfCorrectType(String type) {
+//        System.out.println("TYYYYYYYYYPE: "+type);
+//        Pattern pattern = Pattern.compile("^(int|double|String|boolean|char)$");
+//        Matcher matcher = pattern.matcher(type);
+//        return matcher.matches();
+//    }
 }
 

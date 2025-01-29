@@ -1,7 +1,7 @@
 package variables.exceptions;
 
 /**
- * this exception handles the case we trying to apply value of another variable
+ * this exception handles the case we are trying to apply value of another variable
  * that don't exist in our db
  */
 public class UnreachableVariableException extends RuntimeException {
