@@ -4,7 +4,10 @@ import code_processing.condition_exceptions.InvalidFormatForIfCommandException;
 import code_processing.condition_exceptions.InvalidFormatForWhileCommandException;
 import code_processing.condition_exceptions.InvalidVarTypeForConditionException;
 import code_processing.exceptions.*;
+import databases.MethodsDataBase;
 import databases.VariableDataBase;
+import methods.Method;
+import methods.exceptions.DoubleFunctionDeclaration;
 import variables.exceptions.DoubleCreatingException;
 import variables.exceptions.InvalidFinalVariableInitializationException;
 import variables.exceptions.InvalidFormatException;
@@ -22,21 +25,25 @@ public class FileReaderJavaS {
     private static final String LINE_STARS_WITH_VOID = "^\\s*void\\s.*$";
     private static final String LINE_STARS_WITH_IF = "^\\s*if.*$";
     private static final String LINE_STARS_WITH_WHILE = "^\\s*while.*$";
+    private static final String LINE_IS_RETURN= "^\\s*return;\\s*$";
     private static final String START_SINGLE_COMMENT = "//";
     private static final String STRING = "String ";
     private static final String INTEGER = "int ";
     private static final String DOUBLE = "double ";
     private static final String BOOLEAN = "boolean ";
     private static final String CHAR = "char ";
-    private static final String FINAL = "FINAL ";
+    private static final String FINAL = "final ";
     private static final String CLOSING_PARENTHESIS = "}";
     //--------------------privates--------------------
     private RowProcessing rowProcessing;
     private VariableDataBase variableDataBase;
     private MethodProcessing methodProcessing;
     private ConditionProcessing conditionProcessing;
+    private MethodsDataBase methodsDataBase;
     private int layer;
     private int lineNumber;
+    private int numberOfReturns;
+
 
     /**
      * default constructor FileReaderJavaS
@@ -47,8 +54,10 @@ public class FileReaderJavaS {
         this.rowProcessing = new RowProcessing(this.variableDataBase);
         this.methodProcessing = new MethodProcessing();
         this.conditionProcessing = new ConditionProcessing(variableDataBase);
+        this.methodsDataBase = new MethodsDataBase();
         this.layer = 0;
         this.lineNumber = 0;
+        this.numberOfReturns = 0; // following after number of returns should be in the end 0
     }
 
     /**
@@ -62,10 +71,12 @@ public class FileReaderJavaS {
             while ((line = bufferedReader.readLine()) != null) {
                 if(isSskippableLine(line)) { continue; }
                 isInvalidLine(line);
-                if(validateAndInitializeGlobalVariable(line)){continue;}
+                if(validateVariableAndInitializeGlobalVariable(line)){continue;}
                 if (validateAndAddMethodToDB(line)) {continue;}
                 if(processConditionalStatement(line)){continue;}
                 if(processClosingParenthesis(line)){continue;}
+                if(trackerReturn(line)){continue;} // check pls the function and what i have done in db
+                // zimun function check
                 this.rowProcessing.isSettingRow(line);
                 this.lineNumber++;
             }
@@ -74,11 +85,11 @@ public class FileReaderJavaS {
               System.err.println("Invalid file name: file does not exist");
               return 2;
         }
-        // need to add exceptions of while and if
         catch (InvalidEndingForSentenceException | InvalidMultiLineCommentException |
                JavaDocException | InvalidSingleCommentLineException | InvalidArrayException |
                InvalidFormatException | InvalidFinalVariableInitializationException |
                DoubleCreatingException | invalidVariableTypeException |
+               DoubleFunctionDeclaration|InvalidFormatFunctionException|
                InvalidFormatForWhileCommandException | InvalidFormatForIfCommandException |
                InvalidVarTypeForConditionException | UnreachableVariableException |
                InvalidAmountOfClosingBracketsException e) {
@@ -88,12 +99,40 @@ public class FileReaderJavaS {
         return 0;
     }
 
+    public int functionsCheckInFile(String inputFile){
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            this.lineNumber = 0;
+            while ((line = bufferedReader.readLine()) != null) {
+                if(!isLineIsMethod(line) && this.layer == 0){continue;}
+                if(isLineIsMethod(line)){
+                    this.methodProcessing.loadFunctionParametersToDB(line,variableDataBase);
+                    this.layer++;
+                    this.lineNumber++;
+                    continue;
+                }
+                if(line.strip().endsWith("{")){
+                    this.layer++;
+                }
+                if(line.strip().equals("}")){
+                    this.variableDataBase.removeLayer(this.layer);
+                    this.layer--;
+                    this.lineNumber++;
+                    continue;
+                }
+            }
+        }
+        catch (IOException e) {
+            System.err.println("Invalid file name: file does not exist");
+            return 2;
+        }
+        return 0;
+    }
 
     //---------------------basic check format is correct---------------------------
     // this function checks is it a skippable  line
     private boolean isSskippableLine(String line) {
         if(line.isBlank()||line.startsWith(START_SINGLE_COMMENT)){
-            this.layer++;
             this.lineNumber++;
             return true;
         }
@@ -155,7 +194,7 @@ public class FileReaderJavaS {
     // similarly do the same process if it the line starts with final with specific
     // exceptions for the case of final.
     // if the line don't start with one of these keywords return false.
-    private boolean validateAndInitializeGlobalVariable(String line){
+    private boolean validateVariableAndInitializeGlobalVariable(String line){
         if(line.strip().startsWith(INTEGER)
                 ||line.strip().startsWith(DOUBLE)
                 ||line.strip().startsWith(BOOLEAN)
@@ -189,9 +228,11 @@ public class FileReaderJavaS {
         Matcher mVoid = patternVoid.matcher(line);
         if(mVoid.matches()){
             this.methodProcessing.isCorrectFormatFunction(line.strip());
-            // if valid add method to database of methods we should create
+            this.methodProcessing.processFunctionDeclaration
+                    (line,this.methodsDataBase);
             this.layer++;
             this.lineNumber++;
+            this.numberOfReturns++;
             return true;
         }
         return false;
@@ -222,6 +263,25 @@ public class FileReaderJavaS {
         return false;
     }
 
+    // this function handles the case we see return;
+    // check in the end is number of returns 0 if not
+    // there is a function without a return
+    private boolean trackerReturn(String line){
+        Pattern patternReturn = Pattern.compile(LINE_IS_RETURN);
+        Matcher mReturn = patternReturn.matcher(line);
+        if(mReturn.matches()){
+            if(this.layer == 0){
+                //throw an exception
+            }
+            else if(this.layer == 1 && this.numberOfReturns > 0){
+                this.numberOfReturns--;
+            }
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
     // this function process a line that contains only "}" and update
     // the layer and line number according to it
     // if the line is valid decrement the layer and increase the line number
@@ -238,5 +298,14 @@ public class FileReaderJavaS {
             return true;
         }
         return false;
+    }
+
+    // -----------------functions for second reading (reading of functions)--------
+
+    // this function returns is line is a method or not
+    private boolean isLineIsMethod(String line){
+        Pattern patternVoid = Pattern.compile(LINE_STARS_WITH_VOID);
+        Matcher mVoid = patternVoid.matcher(line);
+        return mVoid.matches();
     }
 }

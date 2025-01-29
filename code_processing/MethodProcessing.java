@@ -33,7 +33,8 @@ public class MethodProcessing {
     private static final String EMPTY_WITHOUT_VARIABLES =
             "void\\s+(\\w+)\\s*\\(\\)\\s*\\{\\s*$";
     private static final String FUNCTION_USAGE_FORMAT =
-            "\\s*\\w+\\s*\\(((('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\,\\s*)*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)|\\s*)\\s*\\)\\s*\\;";
+            "\\s*\\w+\\s*\\(((('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\,\\s*)*" +
+                    "('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)|\\s*)\\s*\\)\\s*\\;";
     private static final String STRING = "String";
     private static final String INTEGER = "int";
     private static final String DOUBLE = "double";
@@ -147,11 +148,13 @@ public class MethodProcessing {
         if (matcher.find()) {
             String parameters = matcher.group(1).trim();
             // Separate the gotten parameters into different substrings
-            List<String> parametersList = convertFunctionParametersToList(parameters,"(final\\s+)?\\w+\\s+\\w+");
+            List<String> parametersList = convertFunctionParametersToList
+                    (parameters,"(final\\s+)?\\w+\\s+\\w+");
             // Declare an ArrayList<Variable> for the future method
             for (String currentParameter : parametersList) {
                 // Create a new variable with default value
-                Variable parameter = createFunctionParameter(currentParameter,db,getNewMethodName(input));
+                Variable parameter = createFunctionParameter
+                        (currentParameter,db,getNewMethodName(input));
                 if(parameter!=null){
                     db.addVariable(parameter);
                 }
@@ -185,7 +188,8 @@ public class MethodProcessing {
         if (matcher.find()) {
             String parameters = matcher.group(1).trim();
             // Separate the gotten parameters into different substrings
-            List<String> parametersList = convertFunctionParametersToList(parameters,"(final\\s+)?\\w+\\s+\\w+");
+            List<String> parametersList = convertFunctionParametersToList
+                    (parameters,"(final\\s+)?\\w+\\s+\\w+");
             // Declare an ArrayList<Variable> for the future method
             ArrayList<VariableType>methodParametersTypes = new ArrayList<>();
             for (String currentParameter : parametersList) {
@@ -217,6 +221,7 @@ public class MethodProcessing {
             }
         } else {
             System.out.println("No match found!");
+            return null;
         }
         return null;
     }
@@ -246,7 +251,14 @@ public class MethodProcessing {
             String type = matcher.group(2).strip();// Extract type (int, String, etc.)
             String variableName = matcher.group(3).strip();// Extract variable name
             if(ValidName.isValidVarNameInput(variableName)){
-                Variable newVar =  new Variable(variableName,1,isFinal,true,VariableType.fromString(type),"default value",db);
+                Variable newVar =  new Variable
+                        (variableName,
+                                1,
+                                isFinal,
+                                true,
+                                VariableType.fromString(type),
+                                "default value",
+                                db);
                 return newVar;
             }
         } else {
@@ -284,7 +296,8 @@ public class MethodProcessing {
     }
 
     // check if calling the method is legal
-    public void checkMethodUsageCorrectness(String code, VariableDataBase variableDataBase, MethodsDataBase methodsDataBase){
+    public void checkMethodUsageCorrectness(String code, VariableDataBase variableDataBase,
+                                            MethodsDataBase methodsDataBase){
         String methodName = getMethodNameFromCode(code);
         ifMethodExistsInDataBase(methodName, methodsDataBase);
         Method myMethod = methodsDataBase.getMethod(methodName);
@@ -326,16 +339,19 @@ public class MethodProcessing {
             // Save the captured code as String variable
             String parameters = matcher.group(1).trim();
             // Strip the text in (), i.e. get an ArrayList of parameters
-            List<String> parametersList = convertFunctionParametersToList(parameters,"\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\s*");
+            List<String> parametersList = convertFunctionParametersToList
+                    (parameters,"\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\s*");
             // Get real parameters of the method (with default values)
             ArrayList<VariableType> realMethodParameters = myMethod.getParameterTypes();
             if(realMethodParameters.size() != parametersList.size()){
-                throw new IncorrectNumberOfParameters(myMethod.getName(),realMethodParameters.size(),parametersList.size());
+                throw new IncorrectNumberOfParameters
+                        (myMethod.getName(),realMethodParameters.size(),parametersList.size());
             }
             for(int i=0;i<realMethodParameters.size();i++){
                 // check the type correctness if parameter is a reference to variable
                 VariableType expectedTypeI = realMethodParameters.get(i);
-                Variable varFromDB = checkIfParamIsValidVarName(parametersList.get(i),variableDataBase,expectedTypeI,i,myMethod.getName());
+                Variable varFromDB = checkIfParamIsValidVarName
+                        (parametersList.get(i),variableDataBase,expectedTypeI,i,myMethod.getName());
                 //if the varFromDB is not null -> there were no exceptions -> parametersList.get(i)
                 // is legal variable name, the variable exists in the dataBase
                 // and its type match the expected one
@@ -355,7 +371,8 @@ public class MethodProcessing {
     }
 
     // check parameter's type if it is variable name
-    private Variable checkIfParamIsValidVarName(String potentialVaName,VariableDataBase variableDataBase,VariableType expectedTypeI, int index, String methodName){
+    private Variable checkIfParamIsValidVarName
+    (String potentialVaName,VariableDataBase variableDataBase,VariableType expectedTypeI, int index, String methodName){
         System.out.println("Potential name is: "+potentialVaName);
         if(ValidName.isValidVarNameInput(potentialVaName)){
             Variable myVar = variableDataBase.findVarByNameOnly(potentialVaName,0);
