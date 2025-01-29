@@ -313,7 +313,7 @@ public class RowProcessing {
             variableDataBase.addVariable(variable);
         }
     }
-
+    // main closed
 //    public static void main(String[] args) {
 //        String code1 = "double x=2.0,b=5;";
 //        String code2 = "int b=3;";
