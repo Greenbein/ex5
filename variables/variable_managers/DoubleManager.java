@@ -20,6 +20,9 @@ public class DoubleManager implements ManagerInterface<Double> {
      */
     @Override
     public boolean isValidInput(String input) {
+        if(input.equals("default value")){
+            return true;
+        }
         Pattern pDouble = Pattern.compile("^[+-]?(\\d*.\\d+|\\d+.\\d*)$");
         Pattern pInteger = Pattern.compile("^[+-]?\\d+$");
         Matcher mInteger = pInteger.matcher(input);
@@ -37,6 +40,9 @@ public class DoubleManager implements ManagerInterface<Double> {
      */
     @Override
     public Double extractValue(String input) {
+        if(input.equals("default value")){
+            return 0.0;
+        }
         String cleanedInput = input.replaceFirst
                 ("^[+]", "").replaceFirst("^0+", "");
         return Double.parseDouble(cleanedInput);

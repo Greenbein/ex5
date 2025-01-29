@@ -66,6 +66,8 @@ public class Variable {
         this.value = null;
     }
 
+
+
     /**
      * this function sets value variable
      * the value of the certain variable

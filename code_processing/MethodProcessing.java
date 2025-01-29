@@ -1,9 +1,15 @@
 package code_processing;
 
 import code_processing.exceptions.invalidVariableTypeException;
+import databases.VariableDataBase;
 import valid_name.ValidName;
 import valid_name.name_exceptions.*;
+import variables.Variable;
+import variables.VariableType;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,4 +110,64 @@ public class MethodProcessing {
             throw new invalidVariableTypeException(variableType);
         }
     }
+
+    public void extractFunctionParametersToDB(String input, VariableDataBase db) {
+        // We do it when we know that the input is valid for function
+        Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Capture text inside ( )
+        Matcher matcher = pattern.matcher(input);
+
+        if (matcher.find()) { // Ensure there is a match before calling .group(1)
+            String parameters = matcher.group(1).trim();
+            List<String> parametersList = convertFunctionParametersToList(parameters);
+
+            for (String currentParameter : parametersList) {
+                addToFunctionLayer(currentParameter, db);
+            }
+        } else {
+             throw new InvalidFormatNameException();
+        }
+    }
+
+
+    private List<String> convertFunctionParametersToList(String input) {
+        List<String> paramList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("(final\\s+)?\\w+\\s+\\w+");
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            paramList.add(matcher.group().strip());
+        }
+
+        return paramList;
+    }
+
+    private void addToFunctionLayer(String input, VariableDataBase db){
+        // Regular expression to match optional "final", the type, and the variable name
+        String regex = "\\s*(final\\s+)?(int|String|char|double|boolean)\\s+(\\w+)\\s*";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input.strip()); // Use strip() to remove leading/trailing spaces
+
+        if (matcher.matches()) {
+            boolean isFinal = matcher.group(1) != null; // Check if "final" exists
+            String type = matcher.group(2).strip(); // Extract type (int, String, etc.)
+            String variableName = matcher.group(3).strip();// Extract variable name
+            if(ValidName.isValidVarNameInput(variableName)){
+                Variable newVar =  new Variable(variableName,1,isFinal,true,VariableType.fromString(type),"default value",db);
+                db.addVariable(newVar);
+            }
+        } else {
+            throw new InvalidFormatNameException();
+        }
+    }
+
+//    public static void main(String[] args) {
+//        VariableDataBase db = new VariableDataBase();
+//        String code = "void hello(final int a,char b, final String c){";
+//        MethodProcessing methodProcessing = new MethodProcessing();
+//        if(methodProcessing.isCorrectFormatFunction(code)){
+//            methodProcessing.extractFunctionParametersToDB(code,db);
+//        }
+//        System.out.println(db);
+//    }
+
 }

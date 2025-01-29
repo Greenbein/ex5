@@ -19,6 +19,9 @@ public class StringManager implements ManagerInterface<String> {
      */
     @Override
     public boolean isValidInput(String input) {
+        if(input.equals("default value")){
+            return true;
+        }
         Pattern patternString = Pattern.compile("^\"[^\"',\\\\]*\"$");
         Matcher matcherString = patternString.matcher(input);
         return matcherString.matches();
@@ -31,6 +34,9 @@ public class StringManager implements ManagerInterface<String> {
      */
     @Override
     public String extractValue(String input) {
+        if(input.equals("default value")){
+            return "default string";
+        }
         return input.substring(1, input.length() - 1);
     }
 }

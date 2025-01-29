@@ -22,7 +22,10 @@ public class IntegerManager implements ManagerInterface<Integer> {
      */
     @Override
     public boolean isValidInput(String input) {
-        System.out.println("MY INPUT IS: "+input);
+//        System.out.println("MY INPUT IS: "+input);
+        if(input.equals("default value")){
+            return true;
+        }
         Pattern p = Pattern.compile("^[+-]?\\d+$");
         Matcher m = p.matcher(input);
         return m.matches();
@@ -35,6 +38,9 @@ public class IntegerManager implements ManagerInterface<Integer> {
      */
     @Override
     public Integer extractValue(String input) {
+        if(input.equals("default value")){
+            return 0;
+        }
         if (input.equals("0")) {
             return 0;
         }

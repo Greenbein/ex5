@@ -19,6 +19,9 @@ public class CharManager implements ManagerInterface<Character>{
      */
     @Override
     public boolean isValidInput(String input) {
+        if(input.equals("default value")){
+            return true;
+        }
         Pattern patternChar = Pattern.compile("^'[^\"',\\\\]'$");
         Matcher matcherChar = patternChar.matcher(input);
         return matcherChar.matches();
@@ -31,6 +34,9 @@ public class CharManager implements ManagerInterface<Character>{
      */
     @Override
     public Character extractValue(String input) {
+        if(input.equals("default value")){
+            return '.';
+        }
         return input.charAt(1);
     }
 }

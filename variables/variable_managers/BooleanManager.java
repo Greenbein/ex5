@@ -32,6 +32,10 @@ public class BooleanManager implements ManagerInterface<Boolean> {
     }
     // checks is String input represents a boolean
     private boolean checkIsInputBoolean(String input){
+        if(input.equals("default value")){
+            this.setValueTypeForBoolean(FALSE);
+            return true;
+        }
         Pattern truePattern = Pattern.compile("^true$");
         Matcher matcherBoolean = truePattern.matcher(input);
         if(matcherBoolean.matches()){
@@ -91,6 +95,9 @@ public class BooleanManager implements ManagerInterface<Boolean> {
      */
     @Override
     public Boolean extractValue(String input) {
+        if(input.equals("default value")){
+            return false;
+        }
         if(this.isValidInput(input)){
              switch (this.getValueTypeForBoolean()) {
                 case INTEGER :

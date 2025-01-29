@@ -4,12 +4,9 @@ import databases.VariableDataBase;
 import variables.Variable;
 import variables.VariableType;
 import variables.exceptions.*;
-
-import javax.annotation.processing.SupportedSourceVersion;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 /**
  * this class process a given word
@@ -17,8 +14,6 @@ import java.util.stream.StreamSupport;
 public class RowProcessing {
     // ----------------------constants---------------------------------
 
-//    private static final String OPERATOR_CASE = "('.*?'|\".*?\"|true|false|[+-]?(\\d*(\\.\\d+)?))\\s*[\\+\\-\\*\\/]?\\s*('.*?'|\".*?\"|true|false|[+-]?(\\d*(\\.\\d+)?))";
-//    private static final String INPUT_REGEX = "("+OPERATOR_CASE+"\'.*?\'|\".*?\"|\\w+|true|false|[+-]*(\\d+|\\d*.\\d*))";
     private static final String INPUT_REGEX =
         "(\'.*?\'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)";
     private static final String TYPES_REGEX = "\\s*(int|double|String|boolean|char)";
@@ -88,7 +83,7 @@ public class RowProcessing {
     private static final String STARTS_WITH_VAR_TYPE =
             "^\\s*(int|double|String|boolean|char)\\s.*";
     // ------------------members of the class -----------------------------------
-    private VariableDataBase variableDataBase;
+    private final VariableDataBase variableDataBase;
 
     /**
      * default constructor RowProcessing
@@ -107,6 +102,9 @@ public class RowProcessing {
 //        }
 //        else if(isSettingRow(code)){
 //            updateVariablesValues(code,currentLayer);
+//        }
+//        else{
+//            throw new InvalidFormatException();
 //        }
 //    }
 
@@ -182,7 +180,9 @@ public class RowProcessing {
         if(!matcher.matches()){
             throw new InvalidFormatException();
         }
-        return true;
+        else{
+            return true;
+        }
     }
 
 //    private boolean isInitializationOnly(String code) {
@@ -221,7 +221,6 @@ public class RowProcessing {
         while (matcher.find()) {
             subStrings.add(matcher.group());
         }
-        System.out.println(subStrings);
         for (int i = 0; i < subStrings.size(); i++) {
             updateVar(subStrings.get(i), currentLayer);
         }
@@ -296,8 +295,6 @@ public class RowProcessing {
             String[] subWords = code.split("=");
             String varName = subWords[0].trim();
             String value = subWords[1].trim();
-
-//            System.out.println("VAR NAME: "+varName+" VALUE: "+value);
             Variable other= this.variableDataBase.findVarByNameOnly(varName,layer);
             if(other!=null){
                 if(other.getLayer()==layer){
@@ -316,14 +313,11 @@ public class RowProcessing {
     // main closed
 //    public static void main(String[] args) {
 //        String code1 = "double x=2.0,b=5;";
-//        String code2 = "int b=3;";
-//        Pattern pattern = Pattern.compile(SETTING_ROW);
-//        Matcher matcher = pattern.matcher(code2);
-//        System.out.println(matcher.matches());
+//        String code2 = "void foo(int a){";
 //        VariableDataBase variableDataBase1 = new VariableDataBase();
 //        RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
 //        rowProcessing1.processCode(code1,14,23);
-//        rowProcessing1.processCode(code2,15,24);
+//        rowProcessing1.processCode(code2,14,24);
 //        System.out.println(variableDataBase1);
 //
 //    }
