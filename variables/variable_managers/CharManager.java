@@ -19,10 +19,9 @@ public class CharManager implements ManagerInterface<Character>{
      */
     @Override
     public boolean isValidInput(String input) {
-//        System.out.println("INPUT CHAR: " + input);
-        Pattern p = Pattern.compile("^'.{1}'$"); // Updated regex
-        Matcher m = p.matcher(input);
-        return m.matches();
+        Pattern patternChar = Pattern.compile("^'[^\"',\\\\]'$");
+        Matcher matcherChar = patternChar.matcher(input);
+        return matcherChar.matches();
     }
 
     /**

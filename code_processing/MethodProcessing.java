@@ -8,12 +8,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MethodProcessing {
-    private static final String METHOD_OPENING =  "void\\s+\\w+\\s*\\(";
+    private static final String METHOD_OPENING =  "void\\s+(\\w+)\\s*\\(";
     private static final String PARAMETERS_FUNCTION_WITH_COMMA =
             "(\\s*final\\s+\\w+\\s+\\w+\\s*,\\s*|\\s*\\w+\\s+\\w+\\s*,\\s*)*\\s*";
     private static final String PARAMETER_FUNCTION_WITHOUT_COMMA =
             "(\\s*final\\s+\\w+\\s+\\w+\\s*|\\s*\\w+\\s+\\w+\\s*)";
     private static final String METHOD_CLOSING = "\\)\\s*\\{\\s*$";
+    private static final String EMPTY_WITHOUT_VARIABLES =
+            "void\\s+(\\w+)\\s*\\(\\)\\s*\\{\\s*$";
     private static final String STRING = "String";
     private static final String INTEGER = "int";
     private static final String DOUBLE = "double";
@@ -27,6 +29,15 @@ public class MethodProcessing {
      * @return returns is the function valid or no
      */
     public boolean isCorrectFormatFunction(String line) {
+        // case we have no variables
+        Pattern patternWithoutVariables = Pattern.compile(EMPTY_WITHOUT_VARIABLES);
+        Matcher functionWithoutVariables = patternWithoutVariables.matcher(line);
+        if(functionWithoutVariables.matches()) {
+            String methodName = functionWithoutVariables.group(1);
+            ValidName.isValidMethodName(methodName);
+            return true;
+        }
+        // case with variables
         String functionFormat = METHOD_OPENING +
                 PARAMETERS_FUNCTION_WITH_COMMA +
                 PARAMETER_FUNCTION_WITHOUT_COMMA +
@@ -38,9 +49,9 @@ public class MethodProcessing {
             throw new InvalidFormatNameException();
         }
         //valid method name
-        String methodName = functionM.group(2);
+        String methodName = functionM.group(1);
         ValidName.isValidMethodName(methodName);
-        String parametersWithComma = functionM.group(3);
+        String parametersWithComma = functionM.group(2);
         // If there are no parameters to process continue checking
         if (!(parametersWithComma == null) && !(parametersWithComma.trim().isEmpty())) {
             // split by commas (between different pairs of variable types and names)
@@ -51,7 +62,7 @@ public class MethodProcessing {
                 checkValidNameValidType(variableTypeAndName);
             }
         }
-        String parametersWithoutAComma = functionM.group(4);
+        String parametersWithoutAComma = functionM.group(3);
         checkValidNameValidType(parametersWithoutAComma);
         return true;
     }
@@ -61,6 +72,7 @@ public class MethodProcessing {
      * @param nameAndVariableType string that contains name and variable type in method
      */
     public void checkValidNameValidType(String nameAndVariableType) {
+        nameAndVariableType = nameAndVariableType.trim();
         String[] parts = nameAndVariableType.split("\\s+");
         String variableType = "";
         String variableName = "";
@@ -86,7 +98,7 @@ public class MethodProcessing {
                 ||variableType.equals(INTEGER)
                 ||variableType.equals(DOUBLE)
                 ||variableType.equals(BOOLEAN))){
-            throw new invalidVariableTypeException();
+            throw new invalidVariableTypeException(variableType);
         }
     }
 }

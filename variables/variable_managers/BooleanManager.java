@@ -33,14 +33,14 @@ public class BooleanManager implements ManagerInterface<Boolean> {
     // checks is String input represents a boolean
     private boolean checkIsInputBoolean(String input){
         Pattern truePattern = Pattern.compile("^true$");
-        Matcher m = truePattern.matcher(input);
-        if(m.matches()){
+        Matcher matcherBoolean = truePattern.matcher(input);
+        if(matcherBoolean.matches()){
             this.setValueTypeForBoolean(TRUE);
             return true;
         }
         Pattern falsePattern = Pattern.compile("^false$");
-        m = falsePattern.matcher(input);
-        if(m.matches()){
+        matcherBoolean = falsePattern.matcher(input);
+        if(matcherBoolean.matches()){
             this.setValueTypeForBoolean(FALSE);
             return true;
         }
@@ -92,11 +92,14 @@ public class BooleanManager implements ManagerInterface<Boolean> {
     @Override
     public Boolean extractValue(String input) {
         if(this.isValidInput(input)){
-            return switch (this.getValueTypeForBoolean()) {
-                case INTEGER -> switchIntegerToBoolean(input);
-                case DOUBLE -> switchDoubleToBoolean(input);
-                default -> switchBooleanToBoolean(input);
-            };
+             switch (this.getValueTypeForBoolean()) {
+                case INTEGER :
+                    return switchIntegerToBoolean(input);
+                case DOUBLE :
+                    return switchDoubleToBoolean(input);
+                default :
+                    return switchBooleanToBoolean(input);
+            }
         }
         else{
             throw new InvalidBooleanException(this.variable.getName());
