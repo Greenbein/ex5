@@ -93,7 +93,7 @@ public class RowProcessing {
         this.variableDataBase = variableDataBase;
     }
 
-//    private void processCode(String code, int currentLayer, int currentLine) {
+//    public void processCode(String code, int currentLayer, int currentLine) {
 //        if(isCorrectFormatFinal(code)){
 //            extractDataFinal(code,currentLayer,currentLine);
 //        }

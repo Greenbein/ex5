@@ -1,5 +1,6 @@
 package code_processing;
 
+import code_processing.exceptions.InvalidFormatFunctionException;
 import code_processing.exceptions.invalidVariableTypeException;
 import databases.VariableDataBase;
 import valid_name.ValidName;
@@ -124,7 +125,7 @@ public class MethodProcessing {
                 addToFunctionLayer(currentParameter, db);
             }
         } else {
-             throw new InvalidFormatNameException();
+             throw new InvalidFormatFunctionException();
         }
     }
 
