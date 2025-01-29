@@ -1,9 +1,14 @@
 package code_processing;
 
+import code_processing.condition_exceptions.InvalidFormatForIfCommandException;
+import code_processing.condition_exceptions.InvalidFormatForWhileCommandException;
+import code_processing.condition_exceptions.InvalidVarTypeForConditionException;
 import code_processing.exceptions.*;
 import databases.VariableDataBase;
+import variables.exceptions.DoubleCreatingException;
 import variables.exceptions.InvalidFinalVariableInitializationException;
 import variables.exceptions.InvalidFormatException;
+import variables.exceptions.UnreachableVariableException;
 
 import java.io.*;
 import java.util.regex.Matcher;
@@ -13,11 +18,37 @@ import java.util.regex.Pattern;
  * this class handles the iteration over the file
  */
 public class FileReaderJavaS {
+    // -------------------------constants-----------------------------
+    private static final String LINE_STARS_WITH_VOID = "^\\s*void\\s.*$";
+    private static final String LINE_STARS_WITH_IF = "^\\s*if.*$";
+    private static final String LINE_STARS_WITH_WHILE = "^\\s*while.*$";
+    private static final String START_SINGLE_COMMENT = "//";
+    private static final String STRING = "String ";
+    private static final String INTEGER = "int ";
+    private static final String DOUBLE = "double ";
+    private static final String BOOLEAN = "boolean ";
+    private static final String CHAR = "char ";
+    private static final String FINAL = "FINAL ";
+    private static final String CLOSING_PARENTHESIS = "}";
+    //--------------------privates--------------------
     private RowProcessing rowProcessing;
     private VariableDataBase variableDataBase;
+    private MethodProcessing methodProcessing;
+    private ConditionProcessing conditionProcessing;
+    private int layer;
+    private int lineNumber;
+
+    /**
+     * default constructor FileReaderJavaS
+     * @param variableDataBase given variable database
+     */
     public FileReaderJavaS(VariableDataBase variableDataBase) {
         this.variableDataBase = variableDataBase;
         this.rowProcessing = new RowProcessing(this.variableDataBase);
+        this.methodProcessing = new MethodProcessing();
+        this.conditionProcessing = new ConditionProcessing(variableDataBase);
+        this.layer = 0;
+        this.lineNumber = 0;
     }
 
     /**
@@ -28,40 +59,29 @@ public class FileReaderJavaS {
     public int readAndCheckBasicErrorFile(String inputFile) {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile))){
             String line;
-            int lineNumber = 0;
-            int layer = 0;
-            int bracketCount = 0;
             while ((line = bufferedReader.readLine()) != null) {
-                // if line starts with single line comment or blank continue
-                // to the next line in the file
-                if(line.isBlank()||line.startsWith("//")){
-                    lineNumber++;
-                    continue;
-                }
-                invalidEndingRow(line,lineNumber);
-                invalidComments(line,lineNumber);
-                invalidArray(line,lineNumber);
-                checkValidityInitializationVariable(line);
-                if(line.strip().endsWith("{")){
-                    bracketCount++;
-                    layer++;
-                }
-                if(line.strip().endsWith("}")){
-                    if(bracketCount == 0){
-                        throw new InvalidAmountOfClosingBracketsException(lineNumber);
-                    }
-                    bracketCount--;
-                    layer--;
-                }
-                rowProcessing.isSettingRow(line); // if not any of the above must be set line
-                lineNumber++;
+                if(isSskippableLine(line)) { continue; }
+                isInvalidLine(line);
+                if(validateAndInitializeGlobalVariable(line)){continue;}
+                if (validateAndAddMethodToDB(line)) {continue;}
+                if(processConditionalStatement(line)){continue;}
+                if(processClosingParenthesis(line)){continue;}
+                this.rowProcessing.isSettingRow(line);
+                this.lineNumber++;
             }
         }
         catch (IOException e) {
-               return 2;
+              System.err.println("Invalid file name: file does not exist");
+              return 2;
         }
-        catch (InvalidMultiLineCommentException|JavaDocException
-                |InvalidSingleCommentLineException|InvalidEndingForSentenceException e) {
+        // need to add exceptions of while and if
+        catch (InvalidEndingForSentenceException | InvalidMultiLineCommentException |
+               JavaDocException | InvalidSingleCommentLineException | InvalidArrayException |
+               InvalidFormatException | InvalidFinalVariableInitializationException |
+               DoubleCreatingException | invalidVariableTypeException |
+               InvalidFormatForWhileCommandException | InvalidFormatForIfCommandException |
+               InvalidVarTypeForConditionException | UnreachableVariableException |
+               InvalidAmountOfClosingBracketsException e) {
             System.err.println(e.getMessage());
             return 1;
         }
@@ -70,12 +90,26 @@ public class FileReaderJavaS {
 
 
     //---------------------basic check format is correct---------------------------
-    /**
-     * this function checks is there invalid comment if there are throw exception
-     * @param line the line we check is there exception
-     * @param lineNumber the line number in the file
-     */
-    public void invalidComments(String line, int lineNumber){
+    // this function checks is it a skippable  line
+    private boolean isSskippableLine(String line) {
+        if(line.isBlank()||line.startsWith(START_SINGLE_COMMENT)){
+            this.layer++;
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    // this function checks is line invalid (invalid format of line)
+    private void isInvalidLine(String line) {
+        invalidEndingRow(line,this.lineNumber); // checks if line ends with {,},;
+        invalidComments(line,this.lineNumber); // check is there invalid comments in line
+        // checks are we trying to initialize arr (invalid)
+        invalidArray(line,this.lineNumber);
+    }
+
+    // this function checks is there invalid comment if there are throw exception
+    private void invalidComments(String line, int lineNumber){
         if(line.contains("/*")){
             throw new InvalidMultiLineCommentException(lineNumber);
         }
@@ -87,12 +121,8 @@ public class FileReaderJavaS {
         }
     }
 
-    /**
-     * this function checks is the line ends with ';' , '{' or '}' if not throw exception
-     * @param line the line we check how it ends
-     * @param lineNumber the line number in the file
-     */
-    public void invalidEndingRow(String line, int lineNumber){
+    //this function checks is the line ends with ';' , '{' or '}' if not throw exception
+    private void invalidEndingRow(String line, int lineNumber){
         String stripedLine = line.strip();
         if(stripedLine.endsWith(";")||stripedLine.endsWith("{") ||stripedLine.endsWith("}")){
             return;
@@ -100,12 +130,8 @@ public class FileReaderJavaS {
         throw new InvalidEndingForSentenceException(lineNumber);
     }
 
-    /**
-     * this function checks is there array if there is throw exception
-     * @param line the exact line we check
-     * @param lineNumber the line number in the file
-     */
-    public void invalidArray(String line, int lineNumber){
+    //this function checks is there array if there is throw exception
+    private void invalidArray(String line, int lineNumber){
         String finalArray = "\\s*final\\s+(int|boolean|char|String|double)\\s*\\[].*";
         Pattern finalPattern = Pattern.compile(finalArray);
         Matcher finalMatcher = finalPattern.matcher(line);
@@ -120,46 +146,97 @@ public class FileReaderJavaS {
         //throw new InvalidArrayException(lineNumber); -----aaaaaaaaa excception---
     }
 
-    /**
-     * this function checks validity of format of initialization of variable
-     * @param line the line we initialize variable
-     */
-    public void checkValidityInitializationVariable(String line){
-        boolean flag = true;
-        if(line.strip().startsWith("int")
-                ||line.strip().startsWith("double")
-                ||line.strip().startsWith("boolean")
-                ||line.strip().startsWith("char")
-                ||line.strip().startsWith("String")){
-            flag = this.rowProcessing.isMixed(line);
+    // this function checks validity of format of initialization of variable
+    // if the line start with primitive type(int/double/boolean/string/char)
+    // check it's correctness and process it in the case it's correct statement
+    // and we in the global layer add to the data base.
+    // if the process ended successfully return true. else there
+    // is a mistake and we throw an exception.
+    // similarly do the same process if it the line starts with final with specific
+    // exceptions for the case of final.
+    // if the line don't start with one of these keywords return false.
+    private boolean validateAndInitializeGlobalVariable(String line){
+        if(line.strip().startsWith(INTEGER)
+                ||line.strip().startsWith(DOUBLE)
+                ||line.strip().startsWith(BOOLEAN)
+                ||line.strip().startsWith(CHAR)
+                ||line.strip().startsWith(STRING)){
+            this.rowProcessing.isMixed(line);
+            if(this.layer == 0){
+                rowProcessing.extractDataMixed(line,this.layer,this.lineNumber);
+            }
+            this.lineNumber++;
+            return true;
         }
-        else if(line.strip().startsWith("final")) {
-            flag = this.rowProcessing.isCorrectFormatFinal(line);
+        else if(line.strip().startsWith(FINAL)) {
+            this.rowProcessing.isCorrectFormatFinal(line);
+            if(this.layer == 0){
+                rowProcessing.extractDataFinal(line,this.layer,this.lineNumber);
+            }
+            this.lineNumber++;
+            return true;
         }
-        if(!flag){
-            throw new InvalidFormatException();
-        }
+        return false;
     }
 
-    /**
-     * this function checks validity of format of if and while
-     * @param line line we do if or while
-     */
-//    public void checkValidityIfWhile(String line, int layer){
-//        if(line.strip().startsWith("if")){
-//            if(layer == 0){
-//                throw new InvalidFormatIfAndWhile();
-//            }
-//        }
-//        else if(line.strip().startsWith("while")) {
-//            if(layer == 0){
-//                throw new InvalidFormatIfAndWhile();
-//            }
-//        }
-//    }
+    // the function validates is the line start with void
+    // if not return false because it's not method declaration
+    // if it is first check is the format of the declaration is valid
+    // if it is then add it to DB update layer and line number and return true
+    // if the format is incorrect or such method exists throw exception
+    private boolean validateAndAddMethodToDB(String line){
+        Pattern patternVoid = Pattern.compile(LINE_STARS_WITH_VOID);
+        Matcher mVoid = patternVoid.matcher(line);
+        if(mVoid.matches()){
+            this.methodProcessing.isCorrectFormatFunction(line.strip());
+            // if valid add method to database of methods we should create
+            this.layer++;
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
 
+    // this function checks is the line conditional statement
+    // if the line is a valid conditional statement update the
+    // layer and line number accordingly
+    // if the line is invalid condition throw exception.
+    // if the line is not a condition return false
+    private boolean  processConditionalStatement(String line){
+        Pattern patternWhile = Pattern.compile(LINE_STARS_WITH_WHILE);
+        Matcher mWhile = patternWhile.matcher(line);
+        if(mWhile.matches()){
+           conditionProcessing.isCorrectWhileFormat(line,this.layer);
+           this.layer++;
+           this.lineNumber++;
+           return true;
+        }
+        Pattern patternIf = Pattern.compile(LINE_STARS_WITH_IF);
+        Matcher mWIf = patternIf.matcher(line);
+        if(mWIf.matches()){
+            conditionProcessing.isCorrectIfFormat(line,this.layer);
+            this.layer++;
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
 
-
-    // check set is valid (set of variables)
-    // check is syntax of method is valid
+    // this function process a line that contains only "}" and update
+    // the layer and line number according to it
+    // if the line is valid decrement the layer and increase the line number
+    // if the line contains only "}" but the layer is zero
+    // throw an exception because there is invalid amount of closing brackets.
+    // if the line don't equal to "}" return false
+    private boolean processClosingParenthesis(String line){
+        if(line.strip().equals(CLOSING_PARENTHESIS)){
+            if(this.layer == 0){
+                throw new InvalidAmountOfClosingBracketsException(this.lineNumber);
+            }
+            this.layer--;
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
 }

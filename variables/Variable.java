@@ -5,9 +5,6 @@ import variables.exceptions.*;
 import valid_name.*;
 import variables.variable_managers.*;
 
-import javax.lang.model.element.VariableElement;
-import javax.naming.InvalidNameException;
-
 /**
  * This class implements java variable
  */
@@ -88,7 +85,7 @@ public class Variable {
                 return;
             }
             else{
-                throw new UnreachableVariable(input);
+                throw new UnreachableVariableException(input);
             }
         }
         IntegerManager integerManager = new IntegerManager();
@@ -140,7 +137,7 @@ public class Variable {
                 return;
             }
             else{
-                throw new InvalidVariableAssignment(input);
+                throw new InvalidVariableAssignmentException(input);
             }
         }
         IntegerManager integerManager = new IntegerManager();

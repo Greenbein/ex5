@@ -10,7 +10,7 @@ import valid_name.ValidName;
 import valid_name.name_exceptions.*;
 import variables.Variable;
 import variables.VariableType;
-import variables.exceptions.UnreachableVariable;
+import variables.exceptions.UnreachableVariableException;
 import variables.exceptions.input_exceptions.IllegalTypeException;
 
 import java.util.ArrayList;
@@ -309,7 +309,7 @@ public class MethodProcessing {
         if(ValidName.isValidVarNameInput(potentialVaName)){
             Variable myVar = variableDataBase.findVarByNameOnly(potentialVaName,0);
             if(myVar == null){
-                throw new UnreachableVariable(potentialVaName);
+                throw new UnreachableVariableException(potentialVaName);
             }
             else{
                 VariableType receivedTypeI = myVar.getValueType();

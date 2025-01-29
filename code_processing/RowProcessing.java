@@ -9,11 +9,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * this class process a given word
+ * This class is responsible for processing lines of code that include
+ * type variables and names
+ * of variables, while checking is the syntax legal,
+ * checking the data types, and in which scopes.
+ * It creates new variables,assign them value, it also updates variables with values, and it
+ * also identify if variable marked as final not to assign new value and prevents double
+ * initialization in the same layer of variable with the same name.
  */
 public class RowProcessing {
     // ----------------------constants---------------------------------
-
     private static final String INPUT_REGEX =
         "(\'.*?\'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)";
     private static final String TYPES_REGEX = "\\s*(int|double|String|boolean|char)";
@@ -204,16 +209,31 @@ public class RowProcessing {
 //    }
     // -------------------extract data final -----------------------------
 
-    private void extractDataFinal(String code, int currentLayer, int currentLine) {
+    /**
+     * this function extracts variables into the database in the case
+     * the line starts with final
+     * @param code the code we got from the file
+     * @param currentLayer the current layer we gonna add the variable into
+     * @param currentLine the number of the current line
+     */
+    public void extractDataFinal(String code, int currentLayer, int currentLine) {
         extractNewVarsFromRow(code,true,1, currentLayer, currentLine);
     }
     // -------------------extract data mixed -----------------------------
-    private void extractDataMixed(String code, int currentLayer, int currentLine) {
+
+    /**
+     * this function extracts variables into the database in the case
+     * line starts with initializer (boolean/char/String/double/int)
+     * @param code the code we got from the file
+     * @param currentLayer the current layer we gonna add the variable into
+     * @param currentLine the number of the current line
+     */
+    public void extractDataMixed(String code, int currentLayer, int currentLine) {
         extractNewVarsFromRow(code,false,0,currentLayer,currentLine);
     }
-
-
     // ------------------------- update variables -------------------------------
+
+    // this function gets the code and the layer we want to add the
     private void updateVariablesValues(String code, int currentLayer) {
         Pattern pattern = Pattern.compile(EXTRACT_DATA_MIXED);
         Matcher matcher = pattern.matcher(code);
@@ -226,6 +246,9 @@ public class RowProcessing {
         }
     }
 
+    //  This method processes an assign to variable code,first it extracts the variable
+    //  name and its new value, and updates the variable with this name in the database.
+    //  If the variable is not found in the DB, an exception is thrown.
     private void updateVar( String code, int layer) {
         code = code.trim();
         if (code.contains("=")) {
@@ -237,7 +260,7 @@ public class RowProcessing {
                 String value = matcher.group(2).trim();
                 Variable variable = this.variableDataBase.findVarByNameOnly(varName, layer);
                 if (variable == null) {
-                    throw new UnreachableVariable(varName);
+                    throw new UnreachableVariableException(varName);
                 }
                 System.out.println("VARNAME: " + varName + " ,VALUE: " + value);
                 variable.setValue(value);
@@ -246,7 +269,7 @@ public class RowProcessing {
             String varName = code;
             Variable variable = this.variableDataBase.findVarByNameOnly(varName, layer);
             if(variable == null){
-                throw new UnreachableVariable(varName);
+                throw new UnreachableVariableException(varName);
             }
             else{
                 throw new InvalidFormatException();
@@ -255,6 +278,8 @@ public class RowProcessing {
     }
 
     //--------------------extract data from string -----------------
+    // this function finds patterns of variable declaration and assignment extract them,
+    // and adds the variables with those values to the database.
     private void extractNewVarsFromRow(String code,
                                        boolean isFinal,
                                        int typeWordIndex,
@@ -273,18 +298,20 @@ public class RowProcessing {
         addNewVars(typeWord,subStrings,currentLayer,isFinal,this.variableDataBase);
     }
 
+    // this functionAdds new variables to the database based
+    // on a list of Strings of variable declarations.
     private void addNewVars(String typeStr,
                                             ArrayList<String> subStrings,
                                             int layer, boolean isFinal,
                                             VariableDataBase variableDataBase){
-        System.out.println(subStrings);
         VariableType type = VariableType.fromString(typeStr);
         for (int i = 1; i < subStrings.size(); i++) {
             createVariable(type, subStrings.get(i), layer, isFinal,variableDataBase);
         }
     }
 
-
+    // Creates a new variable and adds it to the database if no variable with the same
+    // name exists in the same scope. Throws an exception if a duplicate is found.
     private void createVariable(VariableType type,
                                 String code,
                                 int layer,

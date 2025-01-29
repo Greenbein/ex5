@@ -2,6 +2,9 @@ package valid_name;
 
 import valid_name.name_exceptions.*;
 
+/**
+ * this class checks the validity of the name
+ */
 public class ValidName {
     private static final String INTEGER= "int";
     private static final String CHARACTER= "char";
@@ -41,6 +44,7 @@ public class ValidName {
         }
         return validityChecksNameAsVariables(name);
     }
+
     /**
      * this function checks if a given input is a valid name of a variable
      * @param name name of the variable
