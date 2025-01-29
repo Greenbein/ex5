@@ -39,24 +39,23 @@ public class VariableDataBase {
         this.varDataBase.remove(layer);
     }
 
-
-    public Variable findVarByNameAndType(String varName, int myLayer, VariableType myType, boolean myIsFinalStatus) {
-//
-//        ArrayList<Integer> relevantKeys = relevantKeys(myLayer);
-//        for (int i = 0; i<relevantKeys.size(); i++) {
-//            HashSet<Variable> vars = this.varDataBase.get(relevantKeys.get(i));
-//            for (Variable var : vars) {
-//                if(var.getName().equals(varName) && var.isInitialized()&& var.getValueType().equals(myType)) {
-//                    return var;
-//                }
-//            }
-//        }
-
+    /**
+     * this function searches in the database it there a variable with
+     * the same name and type in order to use to apply his value to variable
+     * @param varName name of variable
+     * @param myLayer layer of variable
+     * @param myType type of variable
+     * @return return the variable with this name and type if exist if not return null
+     */
+    public Variable findVarByNameAndType(String varName,
+                                         int myLayer,
+                                         VariableType myType) {
         for (int layer=myLayer; layer>=0;layer--){
             if(this.varDataBase.containsKey(layer)){
                 HashSet<Variable> vars = this.varDataBase.get(layer);
                 for (Variable var : vars) {
-                    if(var.getName().equals(varName) && var.isInitialized()&& var.getValueType().equals(myType)) {
+                    if(var.getName().equals(varName) && var.isInitialized() &&
+                            var.getValueType().equals(myType)) {
                         return var;
                     }
                 }
@@ -65,6 +64,13 @@ public class VariableDataBase {
         return null;
     }
 
+    /**
+     * this function searches in the database it there a variable with
+     * the same name
+     * @param varName the variable name we search
+     * @param myLayer layer we starting to search from
+     * @return the variable if we find it else null
+     */
     public Variable findVarByNameOnly(String varName, int myLayer) {
         for (int layer=myLayer; layer>=0;layer--){
             if(this.varDataBase.containsKey(layer)){
@@ -78,6 +84,8 @@ public class VariableDataBase {
         }
         return null;
     }
+
+    // need to check with lior if we really need these functions
 
     private ArrayList<Integer>relevantKeys(int layer){
         ArrayList<Integer>myKeys = new ArrayList<>();

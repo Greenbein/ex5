@@ -1,5 +1,8 @@
 package code_processing.exceptions;
 
+/**
+ * this exception handles the case we use single comment line not in the start
+ */
 public class InvalidSingleCommentLineException extends RuntimeException {
     private static final String DEFAULT_MESSAGE =
             " : single comment line not in the start of the sentence is invalid ";

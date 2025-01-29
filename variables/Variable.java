@@ -34,7 +34,7 @@ public class Variable {
                        VariableType type,
                        String value, VariableDataBase db) {
         updateName(name);
-        // the variable can't be final without being initialized
+        // the variable can't be final without being initialized (not supposed to happened)
         if(!isInitialized && isFinal) {
             throw new InvalidFinalVariableInitializationException();
         }
@@ -43,7 +43,6 @@ public class Variable {
         this.isInitialized = isInitialized;
         this.type = type;
         this.db = db;
-//        System.out.println("AAAAAAAAA"+value);
         initializeValue(value);
     }
 
@@ -68,7 +67,7 @@ public class Variable {
     }
 
     /**
-     * this function sets
+     * this function sets value variable
      * the value of the certain variable
      * @param input the value we need to set
      */
@@ -80,7 +79,8 @@ public class Variable {
                     throw new FinalVariableUpdatingException(this.name);
                 }
                 if(!this.type.equals(other.type)){
-                    throw new UpdateValueTypeErrorException(this.name,this.type.toString(),other.type.toString());
+                    throw new UpdateValueTypeErrorException
+                            (this.name,this.type.toString(),other.type.toString());
                 }
                 this.setValue(other.getValue());
                 return;
@@ -91,7 +91,8 @@ public class Variable {
         }
         IntegerManager integerManager = new IntegerManager();
         DoubleManager doubleManager = new DoubleManager();
-        BooleanManager booleanManager = new BooleanManager(integerManager,doubleManager,this);
+        BooleanManager booleanManager = new BooleanManager
+                (integerManager,doubleManager,this);
         CharManager charManager = new CharManager();
         StringManager stringManager =  new StringManager();
         switch(type){
@@ -130,7 +131,7 @@ public class Variable {
      */
     public void initializeValue(String input){
         if(ValidName.isValidVarNameInput(input)){
-            Variable var = this.db.findVarByNameAndType(input,this.layer,this.type,this.isFinal);
+            Variable var = this.db.findVarByNameAndType(input,this.layer,this.type);
             if(var != null){
                 this.value = var.getValue();
                 this.db.addVariable(this);
@@ -231,7 +232,7 @@ public class Variable {
             this.isInitialized=true;
         }
     }
-
+    // check if need to delete here
     public String toString() {
         if (this.isFinal) {
             return "final " + this.type.toString() + " " + this.name + " = " + this.value.toString();

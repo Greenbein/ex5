@@ -28,22 +28,6 @@ public class DoubleManager implements ManagerInterface<Double> {
             return true;
         }
         return false;
-//        Pattern inputWithOperatorInt =
-//                Pattern.compile("^[+-]?\\d+\\s*[+-/*]\\s*[+-]?\\d+]$");
-//        Matcher matcherInputWithOperator = inputWithOperatorInt.matcher(input);
-//        if(matcherInputWithOperator.matches()){
-//            throw new inputWithOperatorException(input);
-//        }
-//        Pattern inputWithOperatorDouble =
-//                Pattern.compile("^[+-]?(\\d*.\\d+\\s*[+-/*]\\s*\\d*.\\d+|"+
-//                                      "\\d*.\\d+\\s*[+-/*]\\s*\\d+.\\d*|"+
-//                                      "\\d+.\\d*\\s*[+-/*]\\s*\\d*.\\d+|"+
-//                                      "\\d+.\\d*\\s*[+-/*]\\s*\\d+.\\d*)$");
-//        matcherInputWithOperator = inputWithOperatorDouble.matcher(input);
-//        if(matcherInputWithOperator.matches()){
-//            throw new inputWithOperatorException(input);
-//        }
-//        return false;
     }
 
     /**

@@ -7,6 +7,9 @@ import valid_name.name_exceptions.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * this class handles the syntax problems of initialization of a function
+ */
 public class MethodProcessing {
     private static final String METHOD_OPENING =  "void\\s+(\\w+)\\s*\\(";
     private static final String PARAMETERS_FUNCTION_WITH_COMMA =

@@ -26,13 +26,6 @@ public class IntegerManager implements ManagerInterface<Integer> {
         Pattern p = Pattern.compile("^[+-]?\\d+$");
         Matcher m = p.matcher(input);
         return m.matches();
-//        Pattern inputWithOperator =
-//                Pattern.compile("^[+-]?\\d+\\s*[+-/*]\\s*[+-]?\\d+]$");
-//        Matcher matcherInputWithOperator = inputWithOperator.matcher(input);
-//        if(matcherInputWithOperator.matches()){
-//            throw new inputWithOperatorException(input);
-//        }
-//        throw new InvalidIntegerException(input);
     }
 
     /**
