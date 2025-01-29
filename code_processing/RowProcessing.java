@@ -3,6 +3,7 @@ package code_processing;
 import databases.VariableDataBase;
 import variables.Variable;
 import variables.VariableType;
+import variables.exceptions.DoubleCreatingException;
 import variables.exceptions.InvalidFormatException;
 import variables.exceptions.InvalidVariableAssignment;
 import variables.exceptions.UnreachableVariable;
@@ -91,8 +92,8 @@ public class RowProcessing {
             +INPUT_REGEX
             +"\\s*);$";
 
-    private static final String STARTS_WITH_FINAL = "^\\s*final\\b.*";
-    private static final String STARTS_WITH_VAR_TYPE = "^\\s*(int|double|String|boolean|char)\\b.*";
+    private static final String STARTS_WITH_FINAL = "^\\s*final\\s.*";
+    private static final String STARTS_WITH_VAR_TYPE = "^\\s*(int|double|String|boolean|char)\\s.*";
 
     private VariableDataBase variableDataBase;
     public RowProcessing(VariableDataBase variableDataBase) {
@@ -257,6 +258,9 @@ public class RowProcessing {
             String value = subWords[1].trim();
 
 //            System.out.println("VAR NAME: "+varName+" VALUE: "+value);
+            if(this.variableDataBase.findVarByNameOnly(varName,layer)!=null){
+                throw new DoubleCreatingException(varName);
+            }
             Variable variable = new Variable(varName,layer,isFinal,true,type, value,this.variableDataBase);
             variableDataBase.addVariable(variable);
         } else {
@@ -267,15 +271,15 @@ public class RowProcessing {
     }
 
     public static void main(String[] args) {
-        String code1 = "double x=2.0,b;";
-        String code2 = "x, b;";
+        String code1 = "double x=2.0,b=5;";
+        String code2 = "int b=3;";
         Pattern pattern = Pattern.compile(SETTING_ROW);
         Matcher matcher = pattern.matcher(code2);
         System.out.println(matcher.matches());
         VariableDataBase variableDataBase1 = new VariableDataBase();
         RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
-        rowProcessing1.processCode(code1,11,23);
-        rowProcessing1.processCode(code2,11,24);
+        rowProcessing1.processCode(code1,14,23);
+        rowProcessing1.processCode(code2,14,24);
         System.out.println(variableDataBase1);
 
     }
