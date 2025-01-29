@@ -6,6 +6,7 @@ import valid_name.*;
 import variables.variable_managers.*;
 
 import javax.lang.model.element.VariableElement;
+import javax.naming.InvalidNameException;
 
 /**
  * This class implements java variable
@@ -14,7 +15,7 @@ public class Variable {
     private String name;
     private final int layer;
     private final boolean isFinal;
-    private final boolean isInitialized;
+    private boolean isInitialized;
     private final VariableType type;
     private Object value;
     private VariableDataBase db;
@@ -42,6 +43,7 @@ public class Variable {
         this.isInitialized = isInitialized;
         this.type = type;
         this.db = db;
+//        System.out.println("AAAAAAAAA"+value);
         initializeValue(value);
     }
 
@@ -71,6 +73,22 @@ public class Variable {
      * @param input the value we need to set
      */
     public void setValue(String input){
+        if(ValidName.isValidVarNameInput(input)) {
+            Variable other = this.db.findVarByNameOnly(input,this.layer);
+            if(other != null) {
+                if(this.isFinal&&this.isInitialized){
+                    throw new FinalVariableUpdatingException(this.name);
+                }
+                if(!this.type.equals(other.type)){
+                    throw new UpdateValueTypeErrorException(this.name,this.type.toString(),other.type.toString());
+                }
+                this.setValue(other.getValue());
+                return;
+            }
+            else{
+                throw new UnreachableVariable(input);
+            }
+        }
         IntegerManager integerManager = new IntegerManager();
         DoubleManager doubleManager = new DoubleManager();
         BooleanManager booleanManager = new BooleanManager(integerManager,doubleManager,this);
@@ -95,14 +113,33 @@ public class Variable {
         }
     }
 
+//    public void setValue(Variable other){
+//        if(this.isFinal&&this.isInitialized){
+//            throw new FinalVariableUpdatingException(this.name);
+//        }
+//        if(!this.type.equals(other.type)){
+//            throw new UpdateValueTypeErrorException(this.name,this.type.toString(),other.type.toString());
+//        }
+//        this.value = other.value;
+//    }
+
     /**
      * this function initializes
      * the value of the certain variable
      * @param input the value we need to implement in the initializes variable
      */
     public void initializeValue(String input){
-
-
+        if(ValidName.isValidVarNameInput(input)){
+            Variable var = this.db.findVarByNameAndType(input,this.layer,this.type,this.isFinal);
+            if(var != null){
+                this.value = var.getValue();
+                this.db.addVariable(this);
+                return;
+            }
+            else{
+                throw new InvalidVariableAssignment(input);
+            }
+        }
         IntegerManager integerManager = new IntegerManager();
         DoubleManager doubleManager = new DoubleManager();
         BooleanManager booleanManager = new BooleanManager(integerManager,doubleManager,this);
@@ -190,6 +227,9 @@ public class Variable {
      */
     public void setValue(Object value) {
         this.value = value;
+        if (!this.isInitialized && value!=null){
+            this.isInitialized=true;
+        }
     }
 
     public String toString() {

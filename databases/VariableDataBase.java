@@ -3,8 +3,10 @@ package databases;
 import variables.Variable;
 import variables.VariableType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
 /**
  * DataBase constructor for variables
@@ -38,16 +40,53 @@ public class VariableDataBase {
     }
 
 
-    public Variable findAvailableVariableByName(String varName, int myLayer, VariableType myType, boolean myIsFinalStatus) {
-        for (int layer = myLayer; layer >=0; layer--) {
-            HashSet<Variable> vars = this.varDataBase.get(layer);
-            for (Variable var : vars) {
-                if(var.getName().equals(varName) && var.isInitialized()&& var.getValueType().equals(myType)) {
-                    return var;
+    public Variable findVarByNameAndType(String varName, int myLayer, VariableType myType, boolean myIsFinalStatus) {
+//
+//        ArrayList<Integer> relevantKeys = relevantKeys(myLayer);
+//        for (int i = 0; i<relevantKeys.size(); i++) {
+//            HashSet<Variable> vars = this.varDataBase.get(relevantKeys.get(i));
+//            for (Variable var : vars) {
+//                if(var.getName().equals(varName) && var.isInitialized()&& var.getValueType().equals(myType)) {
+//                    return var;
+//                }
+//            }
+//        }
+
+        for (int layer=myLayer; layer>=0;layer--){
+            if(this.varDataBase.containsKey(layer)){
+                HashSet<Variable> vars = this.varDataBase.get(layer);
+                for (Variable var : vars) {
+                    if(var.getName().equals(varName) && var.isInitialized()&& var.getValueType().equals(myType)) {
+                        return var;
+                    }
                 }
             }
         }
         return null;
+    }
+
+    public Variable findVarByNameOnly(String varName, int myLayer) {
+        for (int layer=myLayer; layer>=0;layer--){
+            if(this.varDataBase.containsKey(layer)){
+                HashSet<Variable> vars = this.varDataBase.get(layer);
+                for (Variable var : vars) {
+                    if(var.getName().equals(varName)) {
+                        return var;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private ArrayList<Integer>relevantKeys(int layer){
+        ArrayList<Integer>myKeys = new ArrayList<>();
+        for(int i=layer; i>=0;i--){
+            if(this.varDataBase.containsKey(i)){
+                myKeys.add(i);
+            }
+        }
+        return myKeys;
     }
 
     public String toString() {

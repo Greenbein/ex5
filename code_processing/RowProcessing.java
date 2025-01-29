@@ -3,6 +3,8 @@ package code_processing;
 import databases.VariableDataBase;
 import variables.Variable;
 import variables.VariableType;
+import variables.exceptions.InvalidVariableAssignment;
+import variables.exceptions.UnreachableVariable;
 
 import javax.annotation.processing.SupportedSourceVersion;
 import java.util.ArrayList;
@@ -20,15 +22,29 @@ public class RowProcessing {
 
 //    private static final String OPERATOR_CASE = "('.*?'|\".*?\"|true|false|[+-]?(\\d*(\\.\\d+)?))\\s*[\\+\\-\\*\\/]?\\s*('.*?'|\".*?\"|true|false|[+-]?(\\d*(\\.\\d+)?))";
 //    private static final String INPUT_REGEX = "("+OPERATOR_CASE+"\'.*?\'|\".*?\"|\\w+|true|false|[+-]*(\\d+|\\d*.\\d*))";
-    private static final String INPUT_REGEX = "(\'.*?\'|\".*?\"|\\w+|true|false|[+-]*(\\d+|\\d*.\\d*))";
+    private static final String INPUT_REGEX = "(\'.*?\'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)";
 
     private static final String TYPES_REGEX = "\\s*(int|double|String|boolean|char)";
     private static final String VAR_NAME_REGEX = "\\w+";
-    private static final String EXTRACT_DATA_MIXED = "((int|double|String|boolean|char)|\\w+\\s*=\\s*('.*?'|\\w+|\".*?\"|true|false|[+-]?(\\d*(\\.\\d+)?))\\s*|\\w+)";
+    private static final String EXTRACT_DATA_MIXED = "((int|double|String|boolean|char)|\\w+\\s*=\\s*('.*?'|\".*?\"|true|false|[+-]?((\\d*\\.\\d*)|\\d+)\\s*|\\w+)|\\w+)";
     private static final String MIXED =
             "^"
             +TYPES_REGEX
             +"\\s+("
+            +VAR_NAME_REGEX
+            +"\\s*,\\s*|"
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*,\\s*)*("
+            +VAR_NAME_REGEX
+            +"\\s*|"
+            +VAR_NAME_REGEX
+            +"\\s*=\\s*"
+            +INPUT_REGEX
+            +"\\s*);$";
+
+    private static final String SETTING_ROW = "\\s*("
             +VAR_NAME_REGEX
             +"\\s*,\\s*|"
             +VAR_NAME_REGEX
@@ -61,6 +77,7 @@ public class RowProcessing {
             +"\\s*,\\s*)*("
             +VAR_NAME_REGEX
             +"\\s*);$";
+
     private static final String FINAL = "^final\\s+"
             +TYPES_REGEX
             +"\\s+("
@@ -72,6 +89,7 @@ public class RowProcessing {
             +"\\s*=\\s*"
             +INPUT_REGEX
             +"\\s*);$";
+
     private static final String STARTS_WITH_FINAL = "^\\s*final\\b.*";
     private static final String STARTS_WITH_VAR_TYPE = "^\\s*(int|double|String|boolean|char)\\b.*";
 
@@ -86,6 +104,9 @@ public class RowProcessing {
         }
         else if (isMixed(code)){
             extractDataMixed(code,currentLayer,currentLine);
+        }
+        else if(isSettingRow(code)){
+            updateVariablesValues(code,currentLayer);
         }
     }
 
@@ -106,8 +127,6 @@ public class RowProcessing {
     private boolean isCorrectFormatFinal(String code) {
         if (startsWithPattern(code, STARTS_WITH_FINAL)) {
             String secondPartOfCode = extractStringAfterWord(code, "final");
-            // we checked mixed because we want to check is there a variable
-            // not initialized in variable and throw there the specific exception
             Pattern pattern = Pattern.compile(MIXED);
             Matcher matcher = pattern.matcher(secondPartOfCode);
             return matcher.matches();
@@ -121,10 +140,16 @@ public class RowProcessing {
         if (startsWithPattern(code, STARTS_WITH_VAR_TYPE)) {
             Pattern patternMixed = Pattern.compile(MIXED);
             Matcher matcher = patternMixed.matcher(code);
-            System.out.println(matcher.matches());
+//            System.out.println(matcher.matches());
             return matcher.matches();
         }
         return false;
+    }
+
+    private boolean isSettingRow(String code) {
+        Pattern pattern = Pattern.compile(SETTING_ROW);
+        Matcher matcher = pattern.matcher(code);
+        return matcher.matches();
     }
 
     private boolean isInitializationOnly(String code) {
@@ -145,12 +170,52 @@ public class RowProcessing {
 //        return false;
 //    }
     // -------------------extract data final -----------------------------
+
     private void extractDataFinal(String code, int currentLayer, int currentLine) {
         extractNewVarsFromRow(code,true,1, currentLayer, currentLine);
     }
     // -------------------extract data mixed -----------------------------
     private void extractDataMixed(String code, int currentLayer, int currentLine) {
         extractNewVarsFromRow(code,false,0,currentLayer,currentLine);
+    }
+
+
+    // ------------------------- update variables -------------------------------
+    private void updateVariablesValues(String code, int currentLayer) {
+        Pattern pattern = Pattern.compile(EXTRACT_DATA_MIXED);
+        Matcher matcher = pattern.matcher(code);
+        ArrayList<String> subStrings = new ArrayList<>();
+        while (matcher.find()) {
+            subStrings.add(matcher.group());
+        }
+        System.out.println(subStrings);
+        for (int i = 0; i < subStrings.size(); i++) {
+            updateVar(subStrings.get(i), currentLayer);
+        }
+    }
+
+    private void updateVar( String code, int layer) {
+        code = code.trim();
+        if (code.contains("=")) {
+            Pattern pattern = Pattern.compile("(\\w+)\\s*=\\s*"+INPUT_REGEX+"\\s*");
+            Matcher matcher = pattern.matcher(code);
+            if (matcher.matches()) {
+                String varName = matcher.group(1).trim(); // Captures the variable name
+                String value = matcher.group(2).trim();   // Captures the value, preserving formatting
+                Variable variable = this.variableDataBase.findVarByNameOnly(varName, layer);
+                if (variable == null) {
+                    throw new UnreachableVariable(varName);
+                }
+                System.out.println("VARNAME: " + varName + " ,VALUE: " + value);
+                variable.setValue(value);
+            }
+        } else {
+            String varName = code;
+            Variable variable = this.variableDataBase.findVarByNameOnly(varName, layer);
+            if(variable == null){
+                throw new UnreachableVariable(varName);
+            }
+        }
     }
 
     //--------------------extract data from string -----------------
@@ -172,6 +237,7 @@ public class RowProcessing {
                                             ArrayList<String> subStrings,
                                             int layer, boolean isFinal,
                                             VariableDataBase variableDataBase){
+        System.out.println(subStrings);
         VariableType type = VariableType.fromString(typeStr);
         for (int i = 1; i < subStrings.size(); i++) {
             createVariable(type, subStrings.get(i), layer, isFinal,variableDataBase);
@@ -197,19 +263,16 @@ public class RowProcessing {
     }
 
     public static void main(String[] args) {
-        String code1 = "int a=3,b=a;";
-        System.out.println(code1);
+        String code1 = "double x=2.0,b;";
+        String code2 = "x, b;";
+        Pattern pattern = Pattern.compile(SETTING_ROW);
+        Matcher matcher = pattern.matcher(code2);
+        System.out.println(matcher.matches());
         VariableDataBase variableDataBase1 = new VariableDataBase();
         RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
         rowProcessing1.processCode(code1,11,23);
+        rowProcessing1.processCode(code2,11,24);
         System.out.println(variableDataBase1);
 
     }
-
-
-
-
-
-    int c=4, b=a;
-
 }

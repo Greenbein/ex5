@@ -22,6 +22,7 @@ public class IntegerManager implements ManagerInterface<Integer> {
      */
     @Override
     public boolean isValidInput(String input) {
+        System.out.println("MY INPUT IS: "+input);
         Pattern p = Pattern.compile("^[+-]?\\d+$");
         Matcher m = p.matcher(input);
         return m.matches();

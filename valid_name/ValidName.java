@@ -35,6 +35,45 @@ public class ValidName {
         }
         return true;
     }
+    public static boolean isValidVarNameInput(String name) {
+        // Check if the name matches the valid format (alphanumeric + underscores)
+        if (!name.matches("^\\w+$")) {
+            return false;
+        }
+
+        // Check if the name is "_"
+        if (name.equals("_")) {
+            return false;
+        }
+
+        // Check if the name starts with "__"
+        if (name.matches("^__.*$")) {
+            return false;
+        }
+
+        // Check if the name starts with a digit
+        if (name.matches("^\\d.*$")) {
+            return false;
+        }
+
+        // Check if the name is a reserved keyword for variable types
+        if (name.equals("int") || name.equals("double") || name.equals("char") ||
+                name.equals("String") || name.equals("boolean")) {
+            return false;
+        }
+
+        // Check if the name is "final"
+        if (name.equals("final")) {
+            return false;
+        }
+        if (name.equals("true") || name.equals("false")){
+            return false;
+        }
+
+        // All checks passed
+        return true;
+    }
+
 
     /**
      * this function checks is a name of a method is valid
