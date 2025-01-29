@@ -3,6 +3,7 @@ package code_processing;
 import databases.VariableDataBase;
 import variables.Variable;
 import variables.VariableType;
+import variables.exceptions.InvalidFormatException;
 import variables.exceptions.InvalidVariableAssignment;
 import variables.exceptions.UnreachableVariable;
 
@@ -214,6 +215,9 @@ public class RowProcessing {
             Variable variable = this.variableDataBase.findVarByNameOnly(varName, layer);
             if(variable == null){
                 throw new UnreachableVariable(varName);
+            }
+            else{
+                throw new InvalidFormatException();
             }
         }
     }
