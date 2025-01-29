@@ -1,8 +1,6 @@
 package code_processing;
 
-import code_processing.condition_exceptions.InvalidFormatForIfCommandException;
-import code_processing.condition_exceptions.InvalidFormatForWhileCommandException;
-import code_processing.condition_exceptions.InvalidVarTypeForConditionException;
+import code_processing.condition_exceptions.*;
 import databases.VariableDataBase;
 import valid_name.ValidName;
 import variables.Variable;
@@ -27,6 +25,9 @@ public class ConditionProcessing {
 
 
     public boolean isCorrectWhileFormat(String code, int layer) {
+        if(layer==0){
+           throw new IllegalScopeForWhileException();
+        }
         String regexWhile = "\\s*while\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
         if(code.matches(regexWhile)){
             checkConditionParameters(code,layer);
@@ -37,7 +38,10 @@ public class ConditionProcessing {
         return false;
     }
 
-    private boolean isCorrectIfFormat(String code, int layer) {
+    public boolean isCorrectIfFormat(String code, int layer) {
+        if(layer==0){
+            throw new IllegalScopeForIfException();
+        }
         String regexIf = "\\s*if\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
         if(code.matches(regexIf)){
             checkConditionParameters(code,layer);
@@ -103,13 +107,12 @@ public class ConditionProcessing {
         VariableDataBase db = new VariableDataBase();
         ConditionProcessing process = new ConditionProcessing(db);
         RowProcessing row = new RowProcessing(db);
-        String code1 = "boolean x=2,b=0;";
-        String code2 = "char mystring=\'a\';";
-        row.processCode(code1,1,1);
-        row.processCode(code2,1,1);
+//        String code1 = "boolean x=2,b=0;";
+//        String code2 = "char mystring=\'a\';";
+//        row.processCode(code1,1,1);
+//        row.processCode(code2,1,1);
         String code = "while(x||b){";
-        process.isCorrectWhileFormat(code,22);
+        process.isCorrectWhileFormat(code,0);
     }
-
 
 }
