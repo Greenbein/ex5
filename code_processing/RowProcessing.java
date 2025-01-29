@@ -258,8 +258,11 @@ public class RowProcessing {
             String value = subWords[1].trim();
 
 //            System.out.println("VAR NAME: "+varName+" VALUE: "+value);
-            if(this.variableDataBase.findVarByNameOnly(varName,layer)!=null){
-                throw new DoubleCreatingException(varName);
+            Variable other= this.variableDataBase.findVarByNameOnly(varName,layer);
+            if(other!=null){
+                if(other.getLayer()==layer){
+                    throw new DoubleCreatingException(varName);
+                }
             }
             Variable variable = new Variable(varName,layer,isFinal,true,type, value,this.variableDataBase);
             variableDataBase.addVariable(variable);
@@ -279,7 +282,7 @@ public class RowProcessing {
         VariableDataBase variableDataBase1 = new VariableDataBase();
         RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
         rowProcessing1.processCode(code1,14,23);
-        rowProcessing1.processCode(code2,14,24);
+        rowProcessing1.processCode(code2,15,24);
         System.out.println(variableDataBase1);
 
     }
