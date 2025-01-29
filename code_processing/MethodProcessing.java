@@ -2,15 +2,21 @@ package code_processing;
 
 import code_processing.exceptions.InvalidFormatFunctionException;
 import code_processing.exceptions.invalidVariableTypeException;
+import databases.MethodsDataBase;
 import databases.VariableDataBase;
+import methods.Method;
+import methods.exceptions.*;
 import valid_name.ValidName;
 import valid_name.name_exceptions.*;
 import variables.Variable;
 import variables.VariableType;
+import variables.exceptions.UnreachableVariable;
+import variables.exceptions.input_exceptions.IllegalTypeException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,6 +32,8 @@ public class MethodProcessing {
     private static final String METHOD_CLOSING = "\\)\\s*\\{\\s*$";
     private static final String EMPTY_WITHOUT_VARIABLES =
             "void\\s+(\\w+)\\s*\\(\\)\\s*\\{\\s*$";
+    private static final String FUNCTION_USAGE_FORMAT =
+            "\\s*\\w+\\s*\\(((('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\,\\s*)*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)|\\s*)\\s*\\)\\s*\\;";
     private static final String STRING = "String";
     private static final String INTEGER = "int";
     private static final String DOUBLE = "double";
@@ -56,7 +64,7 @@ public class MethodProcessing {
         Matcher functionM = functionP.matcher(line);
         // check if it has correct format of a function
         if (!functionM.matches()) {
-            throw new InvalidFormatNameException();
+            throw new InvalidFormatFunctionException();
         }
         //valid method name
         String methodName = functionM.group(1);
@@ -112,27 +120,78 @@ public class MethodProcessing {
         }
     }
 
-    public void extractFunctionParametersToDB(String input, VariableDataBase db) {
+    // in the case the row supports method declaration format we add a new method to methods database
+    public void processFunctionDeclaration(String code, VariableDataBase vdb, MethodsDataBase mdb) {
+        checkIfTheMethodAlreadyExists(code,mdb);
+        String name = getNewMethodName(code);
+        ArrayList<Variable>methodParameters = loadFunctionParametersToDB(code,vdb);
+        Method newMethod = new Method(name, methodParameters);
+        mdb.addMethod(newMethod);
+    }
+
+    // add method parameters to variables dataBase with default
+    // we use it in order to check in next lines if we use a variable from method's input
+    // the method return ArrayList of variables with default values
+    // (we need to create a new Method and add it to methods dataBase)
+    private ArrayList<Variable> loadFunctionParametersToDB(String input, VariableDataBase db) {
         // We do it when we know that the input is valid for function
-        Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Capture text inside ( )
+        // Capture text inside ( )
+        Pattern pattern = Pattern.compile("\\((.*?)\\)");
         Matcher matcher = pattern.matcher(input);
-
-        if (matcher.find()) { // Ensure there is a match before calling .group(1)
+        // Ensure there is a match before calling .group(1)
+        if (matcher.find()) {
             String parameters = matcher.group(1).trim();
-            List<String> parametersList = convertFunctionParametersToList(parameters);
-
+            // Separate the gotten parameters into different substrings
+            List<String> parametersList = convertFunctionParametersToList(parameters,"(final\\s+)?\\w+\\s+\\w+");
+            // Declare an ArrayList<Variable> for the future method
+            ArrayList<Variable>methodParameters = new ArrayList<>();
             for (String currentParameter : parametersList) {
-                addToFunctionLayer(currentParameter, db);
+                // Create a new variable with default value
+                Variable parameter = createFunctionParameter(currentParameter,db,getNewMethodName(input));
+                if(parameter!=null){
+                    db.addVariable(parameter);
+                    methodParameters.add(parameter);
+                }
+                else{
+                    throw new RuntimeException("Failed to create a new parameter for the method");
+                }
             }
+            return methodParameters;
         } else {
              throw new InvalidFormatFunctionException();
         }
     }
 
+    // check if the received method name already exists
+    public void checkIfTheMethodAlreadyExists(String code, MethodsDataBase mDB){
+        String methodName = getMethodNameFromCode(code);
+        boolean exists = mDB.isExist(getMethodNameFromCode(code));
+        if(exists){
+            throw new DoubleFunctionDeclaration(methodName);
+        }
+    }
 
-    private List<String> convertFunctionParametersToList(String input) {
+    // extract a new function name from function declaration row
+    private String getNewMethodName(String code){
+        Pattern pattern = Pattern.compile("^\\s*void\\s+(\\w+)\\s*\\(");
+        Matcher matcher = pattern.matcher(code);
+
+        if (matcher.find()) { // Use find() instead of matches() to search within the string
+            String funcName = matcher.group(1);// Group 1 contains the function name
+            boolean ok = ValidName.isValidMethodName(funcName);
+            if(ok){
+                return funcName;
+            }
+        } else {
+            System.out.println("No match found!");
+        }
+        return null;
+    }
+
+    // Separate the gotten parameters into different substrings
+    private List<String> convertFunctionParametersToList(String input, String regex) {
         List<String> paramList = new ArrayList<>();
-        Pattern pattern = Pattern.compile("(final\\s+)?\\w+\\s+\\w+");
+        Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
             paramList.add(matcher.group().strip());
@@ -141,7 +200,9 @@ public class MethodProcessing {
         return paramList;
     }
 
-    private void addToFunctionLayer(String input, VariableDataBase db){
+    // Create a new variable with default value
+    // We use its type in order to check function calling correctness (in the future)
+    private Variable createFunctionParameter(String input, VariableDataBase db, String methodName) {
         // Regular expression to match optional "final", the type, and the variable name
         String regex = "\\s*(final\\s+)?(int|String|char|double|boolean)\\s+(\\w+)\\s*";
 
@@ -150,25 +211,160 @@ public class MethodProcessing {
 
         if (matcher.matches()) {
             boolean isFinal = matcher.group(1) != null; // Check if "final" exists
-            String type = matcher.group(2).strip(); // Extract type (int, String, etc.)
+            String type = matcher.group(2).strip();// Extract type (int, String, etc.)
+//            if(!VariableType.checkIfCorrectType(type)){
+//                System.out.println("AAAAA");
+//                throw new IllegalTypeException(type);
+//            }
             String variableName = matcher.group(3).strip();// Extract variable name
             if(ValidName.isValidVarNameInput(variableName)){
                 Variable newVar =  new Variable(variableName,1,isFinal,true,VariableType.fromString(type),"default value",db);
-                db.addVariable(newVar);
+                return newVar;
             }
         } else {
-            throw new InvalidFormatNameException();
+            throw new InvalidInputForMethodDeclarationException(methodName);
+        }
+        return null;
+    }
+
+
+
+    // ------------------------ Method usage case ------------------------------
+
+    /**
+     * The method check if the format of row matches to calling method case, for instance foo(a,1);
+     * @param code - code from a gotten row
+     * @return - true if everything is correct
+     */
+    public boolean isMethodUsageFormat(String code){
+        Pattern pattern = Pattern.compile(FUNCTION_USAGE_FORMAT);
+        Matcher matcher = pattern.matcher(code);
+        return matcher.matches();
+    }
+
+    // check if calling the method is legal
+    public void checkMethodUsageCorrectness(String code, VariableDataBase variableDataBase, MethodsDataBase methodsDataBase){
+        String methodName = getMethodNameFromCode(code);
+        ifMethodExistsInDataBase(methodName, methodsDataBase);
+        Method myMethod = methodsDataBase.getMethod(methodName);
+        checkParametersForCallingFunction(code,variableDataBase,myMethod);
+    }
+
+    // check if method name exists in method database
+    // if it does not -> the method name is not correct -> Exception
+    private void ifMethodExistsInDataBase(String methodName, MethodsDataBase methodsDataBase){
+        boolean ok = methodsDataBase.isExist(methodName);
+        if(!ok){
+            throw new MethodDoesNotExistException(methodName);
         }
     }
 
-//    public static void main(String[] args) {
-//        VariableDataBase db = new VariableDataBase();
-//        String code = "void hello(final int a,char b, final String c){";
-//        MethodProcessing methodProcessing = new MethodProcessing();
-//        if(methodProcessing.isCorrectFormatFunction(code)){
-//            methodProcessing.extractFunctionParametersToDB(code,db);
-//        }
-//        System.out.println(db);
-//    }
+    // get method from the DB according to its name
+    // It is not allowed to add methods with the same names
+    private String getMethodNameFromCode(String code){
+        Pattern pattern = Pattern.compile("^(\\w+)\\s*\\(");
+        Matcher matcher = pattern.matcher(code);
+        if (matcher.find()) {// Use find to locate the match
+            String funcName = matcher.group(1); // Group 1 contains the function name
+//            System.out.println("Function Name: " + funcName);
+            return funcName;
+        }
+        return null;
+    }
+
+    // check if the provided parameters are correct for the method
+    private boolean checkParametersForCallingFunction(String code,
+                                                      VariableDataBase variableDataBase,
+                                                      Method myMethod){
+        // Capture the code inside ()
+        Pattern pattern = Pattern.compile("\\((.*?)\\)");
+        Matcher matcher = pattern.matcher(code);
+        if (matcher.find()) {
+            // Save the captured code as String variable
+            String parameters = matcher.group(1).trim();
+            // Strip the text in (), i.e. get an ArrayList of parameters
+            List<String> parametersList = convertFunctionParametersToList(parameters,"\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\s*");
+            // Get real parameters of the method (with default values)
+            ArrayList<Variable> realMethodParameters = myMethod.getParameters();
+            if(realMethodParameters.size() != parametersList.size()){
+                throw new IncorrectNumberOfParameters(myMethod.getName(),realMethodParameters.size(),parametersList.size());
+            }
+            for(int i=0;i<realMethodParameters.size();i++){
+                // check the type correctness if parameter is a reference to variable
+                VariableType expectedTypeI = VariableType.fromString(parametersList.get(i).trim());
+                checkIfParamIsValidVarName(parametersList.get(i),variableDataBase,expectedTypeI,i,myMethod.getName());
+                // check the type correctness if parameter is a value
+                String value = parametersList.get(i).trim();
+                checkIfParamIsValueInput(value,expectedTypeI,i,myMethod.getName());
+            }
+            return true;
+        }
+        else{
+            throw new InvalidFormatFunctionException();
+        }
+    }
+
+    // check parameter's type if it is variable name
+    private void checkIfParamIsValidVarName(String potentialVaName,VariableDataBase variableDataBase,VariableType expectedTypeI, int index, String methodName){
+        if(ValidName.isValidVarNameInput(potentialVaName)){
+            Variable myVar = variableDataBase.findVarByNameOnly(potentialVaName,0);
+            if(myVar == null){
+                throw new UnreachableVariable(potentialVaName);
+            }
+            else{
+                VariableType receivedTypeI = myVar.getValueType();
+                if(!receivedTypeI.equals(expectedTypeI)){
+                    throw new IncorrectParameterType(index-1,methodName,expectedTypeI,receivedTypeI);
+                }
+            }
+        }
+    }
+
+    // check parameter's type  if it is value and not variable name
+    private void checkIfParamIsValueInput(String input,VariableType expectedTypeI, int index, String methodName){
+        // get input's type according to input's value
+        VariableType receivedTypeI = VariableType.getTypeOfInput(input);
+        // boolean parameter can't get String or char, however can get boolean,int or double
+        if(expectedTypeI == VariableType.BOOLEAN){
+            if(receivedTypeI == VariableType.CHAR || receivedTypeI == VariableType.STRING ){
+                throw new IncorrectParameterType(index+1,methodName,expectedTypeI,receivedTypeI);
+            }
+        }
+        // double parameter can get only int or double
+        else if(expectedTypeI == VariableType.DOUBLE){
+            if(receivedTypeI != VariableType.DOUBLE && receivedTypeI != VariableType.INTEGER){
+                throw new IncorrectParameterType(index+1,methodName,expectedTypeI,receivedTypeI);
+            }
+        }
+        // int parameter can get only int or double
+        else if(expectedTypeI == VariableType.INTEGER){
+            if(receivedTypeI != VariableType.INTEGER && receivedTypeI != VariableType.DOUBLE){
+                throw new IncorrectParameterType(index+1,methodName,expectedTypeI,receivedTypeI);
+            }
+        }
+        // String can get only String or char
+        else if(expectedTypeI == VariableType.STRING){
+            if(receivedTypeI != VariableType.STRING && receivedTypeI != VariableType.CHAR){
+                throw new IncorrectParameterType(index+1,methodName,expectedTypeI,receivedTypeI);
+            }
+        }
+        // Char can get only char
+        else if(expectedTypeI == VariableType.CHAR){
+            if(receivedTypeI != VariableType.CHAR){
+                throw new IncorrectParameterType(index+1,methodName,expectedTypeI,receivedTypeI);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        String code = "void hello (final int x, double y, char c, String s, boolean ok){";
+        MethodProcessing methodProcessing = new MethodProcessing();
+        MethodsDataBase mdb = new MethodsDataBase();
+        VariableDataBase vdb = new VariableDataBase();
+        if(methodProcessing.isCorrectFormatFunction(code)){
+            methodProcessing.processFunctionDeclaration(code,vdb,mdb);
+        }
+        System.out.println(mdb);
+    }
 
 }
