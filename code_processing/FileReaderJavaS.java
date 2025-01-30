@@ -144,15 +144,8 @@ public class FileReaderJavaS {
                                 methodsDataBase);
                         this.lineNumber++;
                     }
-                    //????????????????????/
-                    Pattern patternReturn = Pattern.compile(LINE_IS_RETURN);
-                    Matcher mReturn = patternReturn.matcher(line);
-                    if(mReturn.find()){
-                        if(this.layer==1){
-                            this.lineNumber++;
+                    //????????????????????
 
-                        }
-                    }
                     if(line.strip().equals("}")){
                         this.variableDataBase.removeLayer(this.layer);
                         this.layer--;
@@ -390,4 +383,18 @@ public class FileReaderJavaS {
         Matcher mVoid = patternVoid.matcher(line);
         return mVoid.matches();
     }
+
+    private boolean returnInMethod(String line){
+        Pattern patternReturn = Pattern.compile(LINE_IS_RETURN);
+        Matcher mReturn = patternReturn.matcher(line);
+        if(mReturn.matches()){
+            if(this.layer == 1){
+                this.flagG
+            }
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
 }
