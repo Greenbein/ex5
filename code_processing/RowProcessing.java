@@ -181,7 +181,6 @@ public class RowProcessing {
      * @return if set row valid return true else throw exception
      */
     public boolean isSettingRow(String code) {
-        System.out.println("MY CODE IS: "+code);
         Pattern pattern = Pattern.compile(SETTING_ROW);
         Matcher matcher = pattern.matcher(code);
         return matcher.matches();

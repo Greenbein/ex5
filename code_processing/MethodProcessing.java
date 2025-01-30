@@ -289,10 +289,12 @@ public class MethodProcessing {
      * @param code
      * @return - true or false
      */
-    public boolean isMethodUsage(String code){
+    public boolean isMethodUsage(String code, ConditionProcessing c){
         Pattern pattern = Pattern.compile("\\s*\\w+\\s*\\(");
         Matcher matcher = pattern.matcher(code);
-        if(matcher.find()){
+        boolean isWhile = c.isStartsWithWhile(code);
+        boolean isIf = c.isStartsWithIf(code);
+        if(matcher.find() && !isWhile && !isIf){
            return true;
         }
         return false;
@@ -460,13 +462,13 @@ public class MethodProcessing {
 //            methodProcessing.processFunctionDeclaration(code,mdb);
 //        }
 //        methodProcessing.loadFunctionParametersToDB(code,vdb);
-        if(methodProcessing.isMethodUsage(code2)){
-            System.out.println("We use method");
-            if(methodProcessing.isCorrectMethodUsageFormat(code2)){
-                System.out.println("The syntax is correct");
-//                methodProcessing.checkMethodUsageCorrectness(code2,vdb,mdb);
-            }
-        }
+//        if(methodProcessing.isMethodUsage(code2)){
+//            System.out.println("We use method");
+//            if(methodProcessing.isCorrectMethodUsageFormat(code2)){
+//                System.out.println("The syntax is correct");
+////                methodProcessing.checkMethodUsageCorrectness(code2,vdb,mdb);
+//            }
+//        }
         System.out.println(mdb);
         System.out.println(vdb);
     }

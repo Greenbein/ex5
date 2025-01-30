@@ -22,8 +22,8 @@ public class ConditionProcessing {
     private static final String CORRECT_CONDITION_FORMAT= "\\(("+
             INPUT_FOR_CONDITION+"(\\s*(\\&\\&|\\|\\|)\\s*)"+INPUT_FOR_CONDITION+")*"+
             INPUT_FOR_CONDITION+"\\s*\\)";
-    private static final String STARTS_WITH_IF = "^\\s*if\\s.*";
-    private static final String STARTS_WITH_WHILE = "^\\s*while\\s.*";
+    private static final String LINE_STARS_WITH_IF = "^\\s*if.*$";
+    private static final String LINE_STARS_WITH_WHILE = "^\\s*while.*$";
     //------------------privates---------------------
     private final VariableDataBase db;
 
@@ -46,6 +46,7 @@ public class ConditionProcessing {
             throw new IllegalScopeForIfException();
         }
         String regexWhile = "\\s*while\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
+        System.out.println("The code is: "+code);
         if(!code.matches(regexWhile)){
             throw new InvalidFormatForWhileCommandException();
         }
@@ -114,7 +115,6 @@ public class ConditionProcessing {
     // this function checks the condition parameters if they are invalid
     // throw an exception if all the conditions valid return true
     private boolean checkConditionParameters(String code, int layer) {
-        System.out.println("Code :"+code);
         Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Capture text inside ( )
         Matcher matcher = pattern.matcher(code);
         if(matcher.find()){
@@ -154,6 +154,29 @@ public class ConditionProcessing {
             }
             return true;
         }
+    }
+
+    /**
+     * Check if the fist word in code is while
+     * @param code - code
+     * @return - boolean
+     */
+    public boolean isStartsWithWhile(String code){
+        Pattern patternWhile = Pattern.compile(LINE_STARS_WITH_WHILE);
+        Matcher mWhile = patternWhile.matcher(code);
+        return mWhile.matches();
+
+    }
+    /**
+     * Check if the fist word in code is if
+     * @param code - code
+     * @return - boolean
+     */
+    public boolean isStartsWithIf(String code){
+        Pattern patternIf = Pattern.compile(LINE_STARS_WITH_IF);
+        Matcher mIf = patternIf.matcher(code);
+        return mIf.matches();
+
     }
 
 //    public boolean startsWithIf(String code){

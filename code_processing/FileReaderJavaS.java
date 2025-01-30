@@ -25,8 +25,6 @@ import java.util.regex.Pattern;
 public class FileReaderJavaS {
     // -------------------------constants-----------------------------
     private static final String LINE_STARS_WITH_VOID = "^\\s*void\\s.*$";
-    private static final String LINE_STARS_WITH_IF = "^\\s*if.*$";
-    private static final String LINE_STARS_WITH_WHILE = "^\\s*while.*$";
     private static final String LINE_IS_RETURN= "^\\s*return;\\s*$";
     private static final String START_SINGLE_COMMENT = "//";
     private static final String STRING = "String ";
@@ -127,17 +125,17 @@ public class FileReaderJavaS {
                         rowProcessing.extractDataFinal(line,this.layer,this.numberOfReturns);
                         this.lineNumber++;
                     }
-                    if(conditionProcessing.isCorrectWhileFormat(line,layer)){
+                    if(this.conditionProcessing.isStartsWithWhile(line)){
                         conditionProcessing.isCorrectWhileUsage(line,layer);
                         this.layer++;
                         this.lineNumber++;
                     }
-                    if(conditionProcessing.isCorrectIfFormat(line,layer)){
+                    if(this.conditionProcessing.isStartsWithIf(line)){
                         conditionProcessing.isCorrectIfUsage(line,layer);
                         this.layer++;
                         this.lineNumber++;
                     }
-                    if(methodProcessing.isMethodUsage(line)){
+                    if(methodProcessing.isMethodUsage(line,this.conditionProcessing )){
                         methodProcessing.checkMethodUsageCorrectness(line,variableDataBase,
                                 methodsDataBase);
                         this.lineNumber++;
@@ -280,17 +278,13 @@ public class FileReaderJavaS {
     // if the line is invalid condition throw exception.
     // if the line is not a condition return false
     private boolean  processConditionalStatement(String line){
-        Pattern patternWhile = Pattern.compile(LINE_STARS_WITH_WHILE);
-        Matcher mWhile = patternWhile.matcher(line);
-        if(mWhile.matches()){
+        if(this.conditionProcessing.isStartsWithWhile(line)){
            conditionProcessing.isCorrectWhileFormat(line,this.layer);
            this.layer++;
            this.lineNumber++;
            return true;
         }
-        Pattern patternIf = Pattern.compile(LINE_STARS_WITH_IF);
-        Matcher mWIf = patternIf.matcher(line);
-        if(mWIf.matches()){
+        if(this.conditionProcessing.isStartsWithIf(line)){
             conditionProcessing.isCorrectIfFormat(line,this.layer);
             this.layer++;
             this.lineNumber++;
@@ -325,7 +319,7 @@ public class FileReaderJavaS {
     // function if the format is correct return true else throw
     // an exception
     private boolean isValidFunctionCall(String line){
-        if(this.methodProcessing.isMethodUsage(line)){
+        if(this.methodProcessing.isMethodUsage(line,this.conditionProcessing)){
             this.methodProcessing.isCorrectMethodUsageFormat(line);
             this.lineNumber++;
             return true;
