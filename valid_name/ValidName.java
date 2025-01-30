@@ -61,8 +61,8 @@ public class ValidName {
             return false;
         }
         // Check if the name is a reserved keyword for variable types
-        if (name.equals(INTEGER) || name.equals(DOUBLE) || name.equals(CHARACTER) ||
-                name.equals(STRING) || name.equals(BOOLEAN)) {
+        if (name.equals(INTEGER) || name.equals(DOUBLE) || name.equals(CHARACTER)
+                || name.equals(STRING) || name.equals(BOOLEAN)) {
             return false;
         }
         // Check if the name is "final" true or false
@@ -93,8 +93,9 @@ public class ValidName {
 
     // set of words that name can't be
     private static boolean validityChecksNameAsVariables(String name) {
-        if(name.equals(INTEGER)||name.equals(DOUBLE)||name.equals(CHARACTER)
-                ||name.equals(STRING)||name.equals(BOOLEAN)){
+        if(name.equals(INTEGER)||name.equals(DOUBLE)
+                ||name.equals(CHARACTER) ||name.equals(STRING)
+                ||name.equals(BOOLEAN)){
             throw new NameAfterVariableException();
         }
         if(name.equals(FINAL)){

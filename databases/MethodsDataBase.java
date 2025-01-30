@@ -1,6 +1,7 @@
 package databases;
 
 import methods.Method;
+import methods.exceptions.DoubleFunctionDeclaration;
 import java.util.ArrayList;
 
 /**
@@ -49,6 +50,9 @@ public class MethodsDataBase {
      * @param m - Method object
      */
     public void addMethod(Method m) {
+        if(isExist(m.getName())) {
+            throw new DoubleFunctionDeclaration(m.getName());
+        }
         methods.add(m);
     }
 

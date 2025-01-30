@@ -18,12 +18,31 @@ import java.util.regex.Pattern;
 public class ConditionProcessing {
     //----------------------------constants------------------------
     private static final String INPUT_FOR_CONDITION =
-            "\\s*([+-]?(\\d*(d*\\.\\d*)?)|\\w+|true|false|\".*\"|\'.*\')\\s*";
-    private static final String CORRECT_CONDITION_FORMAT= "\\(("+
-            INPUT_FOR_CONDITION+"(\\s*(\\&\\&|\\|\\|)\\s*)"+INPUT_FOR_CONDITION+")*"+
-            INPUT_FOR_CONDITION+"\\s*\\)";
+            "\\s*([+-]?(\\d*(\\d*\\.\\d*)?)|\\w+|true|false|\".*\"|\'.*\')\\s*";
+
+    private static final String CORRECT_CONDITION_FORMAT =
+            "\\(("+
+            INPUT_FOR_CONDITION
+                    + "\\s*(?:(\\&\\&)|(\\|\\|))\\s*"
+            +INPUT_FOR_CONDITION
+                    + ")*"+
+            INPUT_FOR_CONDITION
+                    + "\\s*\\)";
+
+    public static final String CORRECT_WHILE_FORMAT =
+            "\\s*while\\s*"+
+                    CORRECT_CONDITION_FORMAT +
+                    "\\s*\\{";
+
+    public static final String CORRECT_IF_FORMAT =
+            "\\s*if\\s*" +
+            CORRECT_CONDITION_FORMAT +
+                    "\\s*\\{";
+
     private static final String LINE_STARS_WITH_IF = "^\\s*if.*$";
     private static final String LINE_STARS_WITH_WHILE = "^\\s*while.*$";
+    public static final String BRACKETS_FOR_INPUT = "\\((.*?)\\)";
+    public static final String LOGIC_OPERATORS = "\\|\\||&&";
     //------------------privates---------------------
     private final VariableDataBase db;
 
@@ -36,7 +55,8 @@ public class ConditionProcessing {
     }
 
     /**
-     * The function checks if the usage of command while is correct (FORMAT ONLY)
+     * The function checks if the usage of command
+     * while is correct (FORMAT ONLY)
      * @param code - given code
      * @param layer - current layer
      * @return true or false(exception)
@@ -45,9 +65,7 @@ public class ConditionProcessing {
         if(layer==0){
             throw new IllegalScopeForIfException();
         }
-        String regexWhile = "\\s*while\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
-        System.out.println("The code is: "+code);
-        if(!code.matches(regexWhile)){
+        if(!code.matches(CORRECT_WHILE_FORMAT)){
             throw new InvalidFormatForWhileCommandException();
         }
         return true;
@@ -64,8 +82,7 @@ public class ConditionProcessing {
         if(layer==0){
            throw new IllegalScopeForWhileException();
         }
-        String regexWhile = "\\s*while\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
-        if(code.matches(regexWhile)){
+        if(code.matches(CORRECT_WHILE_FORMAT)){
             checkConditionParameters(code,layer);
         }
         else{
@@ -75,7 +92,8 @@ public class ConditionProcessing {
     }
 
     /**
-     * The function checks if the usage of command if is correct (FORMAT ONLY)
+     * The function checks if the usage of command
+     * if is correct (FORMAT ONLY)
      * @param code - given code
      * @param layer - current layer
      * @return true or false(exception)
@@ -84,8 +102,7 @@ public class ConditionProcessing {
         if(layer==0){
             throw new IllegalScopeForIfException();
         }
-        String regexIf = "\\s*if\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
-        if(!code.matches(regexIf)){
+        if(!code.matches(CORRECT_IF_FORMAT)){
             throw new InvalidFormatForIfCommandException();
         }
         return true;
@@ -102,8 +119,7 @@ public class ConditionProcessing {
         if(layer==0){
             throw new IllegalScopeForIfException();
         }
-        String regexIf = "\\s*if\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
-        if(code.matches(regexIf)){
+        if(code.matches(CORRECT_IF_FORMAT)){
             checkConditionParameters(code,layer);
         }
         else{
@@ -115,11 +131,11 @@ public class ConditionProcessing {
     // this function checks the condition parameters if they are invalid
     // throw an exception if all the conditions valid return true
     private boolean checkConditionParameters(String code, int layer) {
-        Pattern pattern = Pattern.compile("\\((.*?)\\)"); // Capture text inside ( )
+        Pattern pattern = Pattern.compile(BRACKETS_FOR_INPUT);
         Matcher matcher = pattern.matcher(code);
         if(matcher.find()){
             String parameters = matcher.group(1);
-            String[] parts = parameters.split("\\|\\||&&");
+            String[] parts = parameters.split(LOGIC_OPERATORS);
             for(String part : parts){
                 checkParameterValidity(part,layer);
             }
@@ -146,11 +162,13 @@ public class ConditionProcessing {
         else{
             StringManager stringManager = new StringManager();
             if(stringManager.isValidInput(parameter)){
-                throw new InvalidVarTypeForConditionException(parameter,VariableType.STRING);
+                throw new InvalidVarTypeForConditionException(parameter,
+                        VariableType.STRING);
             }
             CharManager charManager = new CharManager();
             if(charManager.isValidInput(parameter)){
-                throw new InvalidVarTypeForConditionException(parameter,VariableType.CHAR);
+                throw new InvalidVarTypeForConditionException(parameter,
+                        VariableType.CHAR);
             }
             return true;
         }
@@ -178,28 +196,4 @@ public class ConditionProcessing {
         return mIf.matches();
 
     }
-
-//    public boolean startsWithIf(String code){
-//        Pattern pattern = Pattern.compile(STARTS_WITH_IF);
-//        Matcher matcher = pattern.matcher(code);
-//        return matcher.matches();
-//    }
-//    public boolean startsWithWhile(String code){
-//        Pattern pattern = Pattern.compile(STARTS_WITH_WHILE);
-//        Matcher matcher = pattern.matcher(code);
-//        return matcher.matches();
-//    }
-
-    public static void main(String[] args) {
-        VariableDataBase db = new VariableDataBase();
-        ConditionProcessing process = new ConditionProcessing(db);
-        RowProcessing row = new RowProcessing(db);
-//        String code1 = "boolean x=2,b=0;";
-//        String code2 = "char mystring=\'a\';";
-//        row.processCode(code1,1,1);
-//        row.processCode(code2,1,1);
-        String code = "while(x||true){";
-        process.isCorrectWhileFormat(code,1);
-    }
-
 }

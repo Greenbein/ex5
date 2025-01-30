@@ -376,6 +376,7 @@ public class FileReaderJavaS {
             this.lineNumber++;
             return true;
         }
+
         return false;
     }
 

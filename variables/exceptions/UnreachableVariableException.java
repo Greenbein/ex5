@@ -1,8 +1,8 @@
 package variables.exceptions;
 
 /**
- * this exception handles the case we are trying to apply value of another variable
- * that don't exist in our db
+ * this exception handles the case we are trying
+ * to apply value of another variable that don't exist in our db
  */
 public class UnreachableVariableException extends RuntimeException {
     private static final String PART_1 = " The variable called \"";

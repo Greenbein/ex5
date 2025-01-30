@@ -7,7 +7,13 @@ import java.util.regex.Pattern;
  * The class allows us to process inputs for character variables,
  * initialize and update them
  */
-public class CharManager implements ManagerInterface<Character>{
+public class CharManager
+        implements ManagerInterface<Character>{
+    private static final String DEFAULT_INPUT = "default value";
+    private static final String CORRECTNESS_VERIFIER_REGEX
+            = "^'[^\"',\\\\]'$";
+    private static final char DEFAULT_CHAR = '.';
+    private static final int FIRST = 1;
     /**
      * Constructor for CHarManager
      */
@@ -19,10 +25,11 @@ public class CharManager implements ManagerInterface<Character>{
      */
     @Override
     public boolean isValidInput(String input) {
-        if(input.equals("default value")){
+        if(input.equals(DEFAULT_INPUT)){
             return true;
         }
-        Pattern patternChar = Pattern.compile("^'[^\"',\\\\]'$");
+        Pattern patternChar =
+                Pattern.compile(CORRECTNESS_VERIFIER_REGEX);
         Matcher matcherChar = patternChar.matcher(input);
         return matcherChar.matches();
     }
@@ -34,9 +41,9 @@ public class CharManager implements ManagerInterface<Character>{
      */
     @Override
     public Character extractValue(String input) {
-        if(input.equals("default value")){
-            return '.';
+        if(input.equals(DEFAULT_INPUT)){
+            return DEFAULT_CHAR;
         }
-        return input.charAt(1);
+        return input.charAt(FIRST);
     }
 }

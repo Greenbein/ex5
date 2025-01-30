@@ -1,8 +1,6 @@
 package methods;
 
-import variables.Variable;
 import variables.VariableType;
-
 import java.util.ArrayList;
 
 /**
@@ -17,7 +15,8 @@ public class Method {
      * @param name - method's name
      * @param parametersTypes - ArrayList of variables with default values
      */
-    public Method(String name, ArrayList<VariableType> parametersTypes) {
+    public Method(String name,
+                  ArrayList<VariableType> parametersTypes) {
         this.name = name;
         this.parametersTypes = parametersTypes;
     }
@@ -40,7 +39,7 @@ public class Method {
 
 
     /**
-     * toString function
+     * toString method
      * @return String with all relevant data
      */
     public String toString() {

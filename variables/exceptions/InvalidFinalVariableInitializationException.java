@@ -1,9 +1,11 @@
 package variables.exceptions;
 
 /**
- * exception for the case we try to create final variable without a value
+ * exception for the case we try to create final variable
+ * without a value
  */
-public class InvalidFinalVariableInitializationException extends RuntimeException {
+public class InvalidFinalVariableInitializationException
+        extends RuntimeException {
     private static final String DEFAULT_MESSAGE =
             "Invalid initializing: final variable must be initialized";
 

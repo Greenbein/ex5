@@ -1,7 +1,8 @@
 package variables.exceptions;
 
 /**
- * this exception handles the case we trying to assign invalid value to the variable
+ * this exception handles the case we are trying
+ * to assign invalid value to the variable
  */
 public class InvalidVariableAssignmentException extends RuntimeException {
     private static final String P1 = " Assignment error. The variable called \"";

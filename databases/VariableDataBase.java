@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.stream.StreamSupport;
 
 /**
  * DataBase constructor for variables
@@ -72,11 +73,11 @@ public class VariableDataBase {
      * @return the variable if we find it else null
      */
     public Variable findVarByNameOnly(String varName, int myLayer) {
-        for (int layer=myLayer; layer>=0;layer--){
-            if(this.varDataBase.containsKey(layer)){
+        for (int layer = myLayer; layer >= 0; layer--) {
+            if (this.varDataBase.get(layer) != null) {
                 HashSet<Variable> vars = this.varDataBase.get(layer);
                 for (Variable var : vars) {
-                    if(var.getName().equals(varName)) {
+                    if (var.getName().equals(varName)) {
                         return var;
                     }
                 }
@@ -85,24 +86,16 @@ public class VariableDataBase {
         return null;
     }
 
-    // need to check with lior if we really need these functions
-
-    private ArrayList<Integer>relevantKeys(int layer){
-        ArrayList<Integer>myKeys = new ArrayList<>();
-        for(int i=layer; i>=0;i--){
-            if(this.varDataBase.containsKey(i)){
-                myKeys.add(i);
-            }
-        }
-        return myKeys;
-    }
-
+    /**
+     * toString method
+     * @return String
+     */
     public String toString() {
         String result = "VariableDataBase:\n";
         for (Integer layer : varDataBase.keySet()) {
             result += "Layer " + layer + ":\n";
             for (Variable variable : varDataBase.get(layer)) {
-                result += "  " + variable.toString() + "\n"; // Assumes Variable has a toString method
+                result += "  " + variable.toString() + "\n";
             }
         }
         return result;

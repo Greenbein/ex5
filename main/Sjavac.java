@@ -3,6 +3,8 @@ package main;
 import code_processing.FileReaderJavaS;
 import code_processing.exceptions.*;
 import databases.VariableDataBase;
+import main.exceptions_main.IllegalFileFormatException;
+import main.exceptions_main.IllegalNumberOfArguments;
 import variables.exceptions.InvalidFinalVariableInitializationException;
 import variables.exceptions.InvalidFormatException;
 
@@ -15,6 +17,7 @@ import java.io.IOException;
  * else would print 1 for any other exception
  */
 public class Sjavac {
+    private static final String SJAVA_FORMAT = ".sjava";
     /**
      * main func for Sjavac
      * @param args the argument we would get form user (path to file)
@@ -23,12 +26,12 @@ public class Sjavac {
         try{
             // validate we got one argument
             if (args.length != 1) {
-                throw new IOException("Illegal number of arguments.");
+                throw new IllegalNumberOfArguments();
             }
             // validate ends with .sjava
             String fileName = args[0];
-            if (!fileName.endsWith(".sjava")) {
-                throw new IOException("Wrong file format: expected .sjava file.");
+            if (!fileName.endsWith(SJAVA_FORMAT)) {
+                throw new IllegalFileFormatException();
             }
             // create new variable database
             VariableDataBase variableDataBase = new VariableDataBase();

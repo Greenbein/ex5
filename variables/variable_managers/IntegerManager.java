@@ -11,6 +11,11 @@ import java.util.regex.Pattern;
  * initialize and update them
  */
 public class IntegerManager implements ManagerInterface<Integer> {
+    private static final String DEFAULT_INPUT = "default value";
+    private static final String
+            CORRECTNESS_VERIFIER_REGEX = "^[+-]?\\d+$";
+    private static final String ZERO_STRING = "0";
+    private static final int DEFAULT_VALUE = 0;
     /**
      * IntegerManager constructor
      */
@@ -22,11 +27,10 @@ public class IntegerManager implements ManagerInterface<Integer> {
      */
     @Override
     public boolean isValidInput(String input) {
-//        System.out.println("MY INPUT IS: "+input);
-        if(input.equals("default value")){
+        if(input.equals(DEFAULT_INPUT)){
             return true;
         }
-        Pattern p = Pattern.compile("^[+-]?\\d+$");
+        Pattern p = Pattern.compile(CORRECTNESS_VERIFIER_REGEX);
         Matcher m = p.matcher(input);
         return m.matches();
     }
@@ -38,13 +42,14 @@ public class IntegerManager implements ManagerInterface<Integer> {
      */
     @Override
     public Integer extractValue(String input) {
-        if(input.equals("default value")){
-            return 0;
+        if(input.equals(DEFAULT_INPUT)){
+            return DEFAULT_VALUE;
         }
-        if (input.equals("0")) {
-            return 0;
+        if (input.equals(ZERO_STRING)) {
+            return DEFAULT_VALUE;
         }
-        String cleanedInput = input.replaceFirst("^[+]", "").replaceFirst("^0+", "");
+        String cleanedInput = input.replaceFirst("^[+]", "").
+                replaceFirst("^0+", "");
         return Integer.parseInt(cleanedInput);
     }
 }

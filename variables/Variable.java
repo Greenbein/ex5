@@ -31,7 +31,8 @@ public class Variable {
                        VariableType type,
                        String value, VariableDataBase db) {
         updateName(name);
-        // the variable can't be final without being initialized (not supposed to happened)
+        // the variable can't be final without being
+        // initialized (not supposed to happened)
         if(!isInitialized && isFinal) {
             throw new InvalidFinalVariableInitializationException();
         }
@@ -50,7 +51,11 @@ public class Variable {
      * @param isFinal - isFinal must be equal to false
      * @param type - variable's type
      */
-    public Variable(String name,int layer,boolean isFinal,VariableType type,VariableDataBase db) {
+    public Variable(String name,
+                    int layer,
+                    boolean isFinal,
+                    VariableType type,
+                    VariableDataBase db) {
         updateName(name);
         this.layer = layer;
         if(isFinal) {
@@ -112,17 +117,6 @@ public class Variable {
                 break;
         }
     }
-
-//    public void setValue(Variable other){
-//        if(this.isFinal&&this.isInitialized){
-//            throw new FinalVariableUpdatingException(this.name);
-//        }
-//        if(!this.type.equals(other.type)){
-//            throw new UpdateValueTypeErrorException(this.name,this.type.toString(),other.type.toString());
-//        }
-//        this.value = other.value;
-//    }
-
     /**
      * this function initializes
      * the value of the certain variable
@@ -142,7 +136,8 @@ public class Variable {
         }
         IntegerManager integerManager = new IntegerManager();
         DoubleManager doubleManager = new DoubleManager();
-        BooleanManager booleanManager = new BooleanManager(integerManager,doubleManager,this);
+        BooleanManager booleanManager =
+                new BooleanManager(integerManager,doubleManager,this);
         CharManager charManager = new CharManager();
         StringManager stringManager =  new StringManager();
         switch(this.type){
@@ -231,13 +226,19 @@ public class Variable {
             this.isInitialized=true;
         }
     }
-    // check if need to delete here
+
+    /**
+     * ToString method
+     * @return String
+     */
     public String toString() {
         if (this.isFinal) {
-            return "final " + this.type.toString() + " " + this.name + " = " + this.value.toString();
+            return "final " + this.type.toString()
+                    + " " + this.name + " = " + this.value.toString();
         } else {
             if (this.isInitialized) {
-                return this.type.toString() + " " + this.name + " = " + this.value.toString();
+                return this.type.toString()
+                        + " " + this.name + " = " + this.value.toString();
             } else {
                 return this.type.toString() + " " + this.name;
             }

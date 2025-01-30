@@ -9,11 +9,15 @@ import java.util.regex.Pattern;
  * The class allows us to process inputs for boolean variables,
  * initialize and update them
  */
-public class BooleanManager implements ManagerInterface<Boolean> {
+public class BooleanManager
+        implements ManagerInterface<Boolean> {
+    public static final String TRUE_REGEX = "^true$";
+    private static final String DEFAULT = "default value";
     private static final String DOUBLE = "double";
     private static final String INT = "int";
     private static final String TRUE = "true";
     private static final String FALSE = "false";
+    public static final String FALSE_REGEX = "^false$";
     private final IntegerManager integerManager;
     private final DoubleManager doubleManager;
     private final Variable variable;
@@ -25,24 +29,26 @@ public class BooleanManager implements ManagerInterface<Boolean> {
      * @param doubleManager - manager for Double
      * @param variable - the variable we work with
      */
-    public BooleanManager(IntegerManager integerManager, DoubleManager doubleManager, Variable variable) {
+    public BooleanManager(IntegerManager integerManager,
+                          DoubleManager doubleManager,
+                          Variable variable) {
         this.integerManager = integerManager;
         this.doubleManager = doubleManager;
         this.variable = variable;
     }
     // checks is String input represents a boolean
     private boolean checkIsInputBoolean(String input){
-        if(input.equals("default value")){
+        if(input.equals(DEFAULT)){
             this.setValueTypeForBoolean(FALSE);
             return true;
         }
-        Pattern truePattern = Pattern.compile("^true$");
+        Pattern truePattern = Pattern.compile(TRUE_REGEX);
         Matcher matcherBoolean = truePattern.matcher(input);
         if(matcherBoolean.matches()){
             this.setValueTypeForBoolean(TRUE);
             return true;
         }
-        Pattern falsePattern = Pattern.compile("^false$");
+        Pattern falsePattern = Pattern.compile(FALSE_REGEX);
         matcherBoolean = falsePattern.matcher(input);
         if(matcherBoolean.matches()){
             this.setValueTypeForBoolean(FALSE);
@@ -60,7 +66,8 @@ public class BooleanManager implements ManagerInterface<Boolean> {
     // switches a string that represents double into a boolean
     private boolean switchDoubleToBoolean(String input){
         String cleanedInput = input.replaceFirst
-                ("^[+]", "").replaceFirst("^0+", "");
+                ("^[+]", "").
+                replaceFirst("^0+", "");
         double boolDoubleValue = Double.parseDouble(cleanedInput);
         return boolDoubleValue != 0;
     }
@@ -95,7 +102,7 @@ public class BooleanManager implements ManagerInterface<Boolean> {
      */
     @Override
     public Boolean extractValue(String input) {
-        if(input.equals("default value")){
+        if(input.equals(DEFAULT)){
             return false;
         }
         if(this.isValidInput(input)){

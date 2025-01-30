@@ -7,6 +7,12 @@ import java.util.regex.Pattern;
  * initialize and update them
  */
 public class StringManager implements ManagerInterface<String> {
+    private static final String
+            DEFAULT_VALUE = "default value";
+    private static final String
+            DEFAULT_STRING_VALUE = "default string";
+    private static final String
+            CORRECTNESS_VERIFIER_REGEX = "^\"[^\"',\\\\]*\"$";
     /**
      * constructor for StringManager
      */
@@ -19,10 +25,11 @@ public class StringManager implements ManagerInterface<String> {
      */
     @Override
     public boolean isValidInput(String input) {
-        if(input.equals("default value")){
+        if(input.equals(DEFAULT_VALUE)){
             return true;
         }
-        Pattern patternString = Pattern.compile("^\"[^\"',\\\\]*\"$");
+        Pattern patternString =
+                Pattern.compile(CORRECTNESS_VERIFIER_REGEX);
         Matcher matcherString = patternString.matcher(input);
         return matcherString.matches();
     }
@@ -34,8 +41,8 @@ public class StringManager implements ManagerInterface<String> {
      */
     @Override
     public String extractValue(String input) {
-        if(input.equals("default value")){
-            return "default string";
+        if(input.equals(DEFAULT_VALUE)){
+            return DEFAULT_STRING_VALUE;
         }
         return input.substring(1, input.length() - 1);
     }
