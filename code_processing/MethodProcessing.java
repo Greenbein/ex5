@@ -285,14 +285,30 @@ public class MethodProcessing {
     // ------------------------ Method usage case ------------------------------
 
     /**
+     * The method check if the row starts with \s*func_name\s*(...
+     * @param code
+     * @return - true or false
+     */
+    public boolean isMethodUsage(String code){
+        Pattern pattern = Pattern.compile("\\s*\\w+\\s*\\(");
+        Matcher matcher = pattern.matcher(code);
+        if(matcher.find()){
+           return true;
+        }
+        return false;
+    }
+    /**
      * The method check if the format of row matches to calling method case, for instance foo(a,1);
      * @param code - code from a gotten row
      * @return - true if everything is correct
      */
-    public boolean isMethodUsageFormat(String code){
+    public boolean isCorrectMethodUsageFormat(String code){
         Pattern pattern = Pattern.compile(FUNCTION_USAGE_FORMAT);
         Matcher matcher = pattern.matcher(code);
-        return matcher.matches();
+        if(!matcher.matches()){
+            throw new IncorrectFunctionCallingFormat();
+        }
+        return true;
     }
 
     // check if calling the method is legal
@@ -431,9 +447,9 @@ public class MethodProcessing {
     }
 
     public static void main(String[] args) {
-//        String code0 = "int x = 3;";
+        String code0 = "int x = 3;";
         String code = "void hello (final int x){";
-        String code2 = "hello(x);";
+        String code2 = "hello(2);";
         MethodsDataBase mdb = new MethodsDataBase();
         VariableDataBase vdb = new VariableDataBase();
         RowProcessing rowProcessing = new RowProcessing(vdb);
@@ -442,8 +458,11 @@ public class MethodProcessing {
         if(methodProcessing.isCorrectFormatFunction(code)){
             methodProcessing.processFunctionDeclaration(code,mdb);
         }
-        if(methodProcessing.isMethodUsageFormat(code2)){
-            methodProcessing.checkMethodUsageCorrectness(code2,vdb,mdb);
+        methodProcessing.loadFunctionParametersToDB(code,vdb);
+        if(methodProcessing.isMethodUsage(code2)){
+            if(methodProcessing.isCorrectMethodUsageFormat(code2)){
+                methodProcessing.checkMethodUsageCorrectness(code2,vdb,mdb);
+            }
         }
         System.out.println(mdb);
         System.out.println(vdb);
