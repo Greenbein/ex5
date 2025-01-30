@@ -20,12 +20,12 @@ import java.util.regex.Pattern;
 public class RowProcessing {
     // ----------------------constants---------------------------------
     private static final String INPUT_REGEX =
-        "(\'.*?\'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)";
+        "('.*'|\".*\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)";
     private static final String TYPES_REGEX = "\\s*(int|double|String|boolean|char)";
     private static final String VAR_NAME_REGEX = "\\w+";
     private static final String EXTRACT_DATA_MIXED =
             "((int|double|String|boolean|char)|\\w+\\s*=\\s*" +
-                    "('.*?'|\".*?\"|true|false|[+-]?((\\d*\\.\\d*)|\\d+)\\s*|\\w+)|\\w+)";
+                    "('.*'|\".*\"|true|false|[+-]?((\\d*\\.\\d*)|\\d+)\\s*|\\w+)|\\w+)";
     private static final String MIXED =
             "^"
             +TYPES_REGEX
@@ -55,7 +55,9 @@ public class RowProcessing {
 //            +"\\s*\\=\\s*"
 //            +INPUT_REGEX
 //            +"\\s*);$";
-    private static final String SETTING_ROW  = "\\s*(\\w+\\s*\\=\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\,\\s*)*(\\w+\\s*\\=\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\s*\\;\\s*)";
+    private static final String SETTING_ROW  =
+        "\\s*(\\w+\\s*\\=\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\,\\s*)*" +
+                "(\\w+\\s*\\=\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\s*\\;\\s*)";
     private static final String INITIALIZED_ONLY = "^"
             +TYPES_REGEX
             +"\\s+("
