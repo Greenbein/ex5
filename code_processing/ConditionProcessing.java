@@ -36,13 +36,30 @@ public class ConditionProcessing {
     }
 
     /**
+     * The function checks if the usage of command while is correct (FORMAT ONLY)
+     * @param code - given code
+     * @param layer - current layer
+     * @return true or false(exception)
+     */
+    public boolean isCorrectWhileFormat(String code, int layer) {
+        if(layer==0){
+            throw new IllegalScopeForIfException();
+        }
+        String regexWhile = "\\s*while\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
+        if(!code.matches(regexWhile)){
+            throw new InvalidFormatForWhileCommandException();
+        }
+        return true;
+    }
+
+    /**
      * this function checks is given the sentence starts with
      * while it is in the correct format if not throw exception
      * @param code given code from the file
      * @param layer the current layer it recorded in the code
      * @return is the code in a correct format of while
      */
-    public boolean isCorrectWhileFormat(String code, int layer) {
+    public boolean isCorrectWhileUsage(String code, int layer) {
         if(layer==0){
            throw new IllegalScopeForWhileException();
         }
@@ -57,13 +74,30 @@ public class ConditionProcessing {
     }
 
     /**
+     * The function checks if the usage of command if is correct (FORMAT ONLY)
+     * @param code - given code
+     * @param layer - current layer
+     * @return true or false(exception)
+     */
+    public boolean isCorrectIfFormat(String code, int layer) {
+        if(layer==0){
+            throw new IllegalScopeForIfException();
+        }
+        String regexIf = "\\s*if\\s*"+CORRECT_CONDITION_FORMAT+"\\s*\\{";
+        if(!code.matches(regexIf)){
+            throw new InvalidFormatForIfCommandException();
+        }
+        return true;
+    }
+
+    /**
      * this function checks is given the sentence starts with
      * if it is in the correct format if not throw exception
      * @param code given code from the file
      * @param layer the current layer it recorded in the code
      * @return is the code in a correct format of if
      */
-    public boolean isCorrectIfFormat(String code, int layer) {
+    public boolean isCorrectIfUsage(String code, int layer) {
         if(layer==0){
             throw new IllegalScopeForIfException();
         }
@@ -141,8 +175,8 @@ public class ConditionProcessing {
 //        String code2 = "char mystring=\'a\';";
 //        row.processCode(code1,1,1);
 //        row.processCode(code2,1,1);
-        String code = "while(x||b){";
-        process.isCorrectWhileFormat(code,0);
+        String code = "while(x||true){";
+        process.isCorrectWhileFormat(code,1);
     }
 
 }

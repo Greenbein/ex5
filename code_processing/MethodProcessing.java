@@ -306,6 +306,7 @@ public class MethodProcessing {
         Pattern pattern = Pattern.compile(FUNCTION_USAGE_FORMAT);
         Matcher matcher = pattern.matcher(code);
         if(!matcher.matches()){
+            System.out.println("Wrong calling method format");
             throw new IncorrectFunctionCallingFormat();
         }
         return true;
@@ -447,21 +448,23 @@ public class MethodProcessing {
     }
 
     public static void main(String[] args) {
-        String code0 = "int x = 3;";
-        String code = "void hello (final int x){";
-        String code2 = "hello(2);";
+//        String code0 = "int x = 3;";
+//        String code = "void hello (final int x){";
+        String code2 = "hello(x);";
         MethodsDataBase mdb = new MethodsDataBase();
         VariableDataBase vdb = new VariableDataBase();
         RowProcessing rowProcessing = new RowProcessing(vdb);
         MethodProcessing methodProcessing = new MethodProcessing();
 //        rowProcessing.processCode(code0,0,1);
-        if(methodProcessing.isCorrectFormatFunction(code)){
-            methodProcessing.processFunctionDeclaration(code,mdb);
-        }
-        methodProcessing.loadFunctionParametersToDB(code,vdb);
+//        if(methodProcessing.isCorrectFormatFunction(code)){
+//            methodProcessing.processFunctionDeclaration(code,mdb);
+//        }
+//        methodProcessing.loadFunctionParametersToDB(code,vdb);
         if(methodProcessing.isMethodUsage(code2)){
+            System.out.println("We use method");
             if(methodProcessing.isCorrectMethodUsageFormat(code2)){
-                methodProcessing.checkMethodUsageCorrectness(code2,vdb,mdb);
+                System.out.println("The syntax is correct");
+//                methodProcessing.checkMethodUsageCorrectness(code2,vdb,mdb);
             }
         }
         System.out.println(mdb);

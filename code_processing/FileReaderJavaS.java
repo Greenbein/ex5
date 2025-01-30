@@ -57,7 +57,7 @@ public class FileReaderJavaS {
         this.conditionProcessing = new ConditionProcessing(variableDataBase);
         this.methodsDataBase = new MethodsDataBase();
         this.layer = 0;
-        this.lineNumber = 0;
+        this.lineNumber = 1;
         this.numberOfReturns = 0; // following after number of returns should be in the end 0
     }
 
@@ -79,8 +79,11 @@ public class FileReaderJavaS {
                 if(checkAndUpdateReturnTracker(line)){continue;}
                 if(isValidFunctionCall(line)){continue;}
                 if(isValidSettingRow(line)){continue;}
-                throw new InvalidFormatLine(this.lineNumber);
+                else{
+                    throw new InvalidFormatLine(this.lineNumber);
+                }
             }
+            checkScopesCorrectness();
         }
         catch (IOException e) {
               System.err.println("Invalid file name: file does not exist");
@@ -106,21 +109,56 @@ public class FileReaderJavaS {
             String line;
             this.lineNumber = 0;
             while ((line = bufferedReader.readLine()) != null) {
-                if(!isLineIsMethod(line) && this.layer == 0){continue;}
                 if(isLineIsMethod(line)){
                     this.methodProcessing.loadFunctionParametersToDB(line,variableDataBase);
                     this.layer++;
                     this.lineNumber++;
                     continue;
                 }
-                if(line.strip().endsWith("{")){
-                    this.layer++;
-                }
-                if(line.strip().equals("}")){
-                    this.variableDataBase.removeLayer(this.layer);
-                    this.layer--;
-                    this.lineNumber++;
-                    continue;
+                if(!isLineIsMethod(line) && this.layer == 0){continue;}
+                if(!isLineIsMethod(line) && this.layer >0){
+                    if(rowProcessing.isSettingRow(line)){
+                        rowProcessing.updateVariablesValues(line,this.layer);
+                        this.lineNumber++;
+                    }
+                    if(rowProcessing.isMixed(line)){
+                        rowProcessing.extractDataMixed(line,this.layer,this.numberOfReturns);
+                        this.lineNumber++;
+                    }
+                    if(rowProcessing.isCorrectFormatFinal(line)){
+                        rowProcessing.extractDataFinal(line,this.layer,this.numberOfReturns);
+                        this.lineNumber++;
+                    }
+                    if(conditionProcessing.isCorrectWhileFormat(line,layer)){
+                        conditionProcessing.isCorrectWhileUsage(line,layer);
+                        this.layer++;
+                        this.lineNumber++;
+                    }
+                    if(conditionProcessing.isCorrectIfFormat(line,layer)){
+                        conditionProcessing.isCorrectIfUsage(line,layer);
+                        this.layer++;
+                        this.lineNumber++;
+                    }
+                    if(methodProcessing.isMethodUsage(line)){
+                        methodProcessing.checkMethodUsageCorrectness(line,variableDataBase,
+                                methodsDataBase);
+                        this.lineNumber++;
+                    }
+                    //????????????????????/
+                    Pattern patternReturn = Pattern.compile(LINE_IS_RETURN);
+                    Matcher mReturn = patternReturn.matcher(line);
+                    if(mReturn.find()){
+                        if(this.layer==1){
+                            this.lineNumber++;
+
+                        }
+                    }
+                    if(line.strip().equals("}")){
+                        this.variableDataBase.removeLayer(this.layer);
+                        this.layer--;
+                        this.lineNumber++;
+                    }
+
                 }
             }
         }
@@ -130,6 +168,7 @@ public class FileReaderJavaS {
         }
         return 0;
     }
+
 
     //---------------------basic check format is correct---------------------------
     // this function checks is it a skippable  line
@@ -292,6 +331,7 @@ public class FileReaderJavaS {
         if(this.methodProcessing.isMethodUsage(line)){
             this.methodProcessing.isCorrectMethodUsageFormat(line);
             this.lineNumber++;
+            return true;
         }
         return false;
     }
@@ -301,8 +341,11 @@ public class FileReaderJavaS {
     // if it isn't setting row return false
     private boolean isValidSettingRow(String line){
         if(this.rowProcessing.isSettingRow(line)){
-            //set db
+            if(this.layer==0){
+                this.rowProcessing.updateVariablesValues(line,this.layer);
+            }
             this.lineNumber++;
+            return true;
         }
         return false;
     }
@@ -329,6 +372,14 @@ public class FileReaderJavaS {
             return true;
         }
         return false;
+    }
+
+    // check if the last value of layer equals to 0
+    // if it does not -> there is a problem with scopes
+    private void checkScopesCorrectness() {
+        if(this.layer!=0){
+            throw new ScopeErrorException();
+        }
     }
 
     // -----------------functions for second reading (reading of functions)--------

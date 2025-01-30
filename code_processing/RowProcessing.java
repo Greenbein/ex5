@@ -42,19 +42,20 @@ public class RowProcessing {
             +"\\s*=\\s*"
             +INPUT_REGEX
             +"\\s*);$";
-    private static final String SETTING_ROW = "\\s*("
-            +VAR_NAME_REGEX
-            +"\\s*,\\s*|"
-            +VAR_NAME_REGEX
-            +"\\s*=\\s*"
-            +INPUT_REGEX
-            +"\\s*,\\s*)*("
-            +VAR_NAME_REGEX
-            +"\\s*|"
-            +VAR_NAME_REGEX
-            +"\\s*=\\s*"
-            +INPUT_REGEX
-            +"\\s*);$";
+//    private static final String SETTING_ROW = "\\s*("
+//            +VAR_NAME_REGEX
+//            +"\\s*,\\s*|"
+//            +VAR_NAME_REGEX
+//            +"\\s*=\\s*"
+//            +INPUT_REGEX
+//            +"\\s*,\\s*)*("
+//            +VAR_NAME_REGEX
+//            +"\\s*|"
+//            +VAR_NAME_REGEX
+//            +"\\s*\\=\\s*"
+//            +INPUT_REGEX
+//            +"\\s*);$";
+    private static final String SETTING_ROW  = "\\s*(\\w+\\s*\\=\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\,\\s*)*(\\w+\\s*\\=\\s*('.*?'|\".*?\"|[+-]?((\\d*\\.\\d*)|\\d+)|\\w+|true|false)\\s*\\;\\s*)";
     private static final String INITIALIZED_ONLY = "^"
             +TYPES_REGEX
             +"\\s+("
@@ -98,20 +99,20 @@ public class RowProcessing {
         this.variableDataBase = variableDataBase;
     }
 
-//    public void processCode(String code, int currentLayer, int currentLine) {
-//        if(isCorrectFormatFinal(code)){
-//            extractDataFinal(code,currentLayer,currentLine);
-//        }
-//        else if (isMixed(code)){
-//            extractDataMixed(code,currentLayer,currentLine);
-//        }
-//        else if(isSettingRow(code)){
-//            updateVariablesValues(code,currentLayer);
-//        }
-//        else{
-//            throw new InvalidFormatException();
-//        }
-//    }
+    public void processCode(String code, int currentLayer, int currentLine) {
+        if(isCorrectFormatFinal(code)){
+            extractDataFinal(code,currentLayer,currentLine);
+        }
+        else if (isMixed(code)){
+            extractDataMixed(code,currentLayer,currentLine);
+        }
+        else if(isSettingRow(code)){
+            updateVariablesValues(code,currentLayer);
+        }
+        else{
+            throw new InvalidFormatException();
+        }
+    }
 
     // this function extract string after a given word
     private String extractStringAfterWord(String code, String word) {
@@ -180,6 +181,7 @@ public class RowProcessing {
      * @return if set row valid return true else throw exception
      */
     public boolean isSettingRow(String code) {
+        System.out.println("MY CODE IS: "+code);
         Pattern pattern = Pattern.compile(SETTING_ROW);
         Matcher matcher = pattern.matcher(code);
         return matcher.matches();
@@ -228,8 +230,12 @@ public class RowProcessing {
     }
     // ------------------------- update variables -------------------------------
 
-    // this function gets the code and the layer we want to add the
-    private void updateVariablesValues(String code, int currentLayer) {
+    /**
+     * his function gets the code and the layer we want to add the
+     * @param code - code with setting format
+     * @param currentLayer - current layer
+     */
+    public void updateVariablesValues(String code, int currentLayer) {
         Pattern pattern = Pattern.compile(EXTRACT_DATA_MIXED);
         Matcher matcher = pattern.matcher(code);
         ArrayList<String> subStrings = new ArrayList<>();
@@ -254,6 +260,7 @@ public class RowProcessing {
                 // Captures the value, preserving formatting
                 String value = matcher.group(2).trim();
                 Variable variable = this.variableDataBase.findVarByNameOnly(varName, layer);
+
                 if (variable == null) {
                     throw new UnreachableVariableException(varName);
                 }
@@ -333,14 +340,14 @@ public class RowProcessing {
         }
     }
     // main closed
-//    public static void main(String[] args) {
-//        String code1 = "double x=2.0,b=5;";
-//        String code2 = "int x  =3;";
-//        VariableDataBase variableDataBase1 = new VariableDataBase();
-//        RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
-//        rowProcessing1.processCode(code1,14,23);
-//        rowProcessing1.processCode(code2,14,24);
-//        System.out.println(variableDataBase1);
-//
-//    }
+    public static void main(String[] args) {
+        String code1 = "double x=2.0,b=5;";
+        String code2 = "int x  =3;";
+        VariableDataBase variableDataBase1 = new VariableDataBase();
+        RowProcessing rowProcessing1 = new RowProcessing( variableDataBase1);
+        rowProcessing1.processCode(code1,14,23);
+        rowProcessing1.processCode(code2,14,24);
+        System.out.println(variableDataBase1);
+
+    }
 }
