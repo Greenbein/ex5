@@ -39,9 +39,12 @@ public class Sjavac {
             FileReaderJavaS fileReaderJavaS = new FileReaderJavaS(variableDataBase);
             // state of file (0,1,2 like we have explained before)
             int stateOfCheck = fileReaderJavaS.readAndCheckBasicErrorFile(fileName);
+            if(stateOfCheck==2|stateOfCheck==1){
+                System.out.println(stateOfCheck);
+                return;
+            }
             int stateIfSecondCheck = fileReaderJavaS.functionsCheckInFile(fileName);
-            System.out.println("Basic check result: "+stateOfCheck);
-            System.out.println("Methods check result: "+stateIfSecondCheck);
+            System.out.println(stateIfSecondCheck);
         }
         catch(IOException e){
             System.err.println(e.getMessage());
