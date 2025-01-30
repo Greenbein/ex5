@@ -182,12 +182,7 @@ public class RowProcessing {
     public boolean isSettingRow(String code) {
         Pattern pattern = Pattern.compile(SETTING_ROW);
         Matcher matcher = pattern.matcher(code);
-        if(!matcher.matches()){
-            throw new InvalidFormatException();
-        }
-        else{
-            return true;
-        }
+        return matcher.matches();
     }
 
 //    private boolean isInitializationOnly(String code) {

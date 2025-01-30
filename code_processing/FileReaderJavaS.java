@@ -8,6 +8,7 @@ import databases.MethodsDataBase;
 import databases.VariableDataBase;
 import methods.Method;
 import methods.exceptions.DoubleFunctionDeclaration;
+import methods.exceptions.IncorrectFunctionCallingFormat;
 import variables.exceptions.DoubleCreatingException;
 import variables.exceptions.InvalidFinalVariableInitializationException;
 import variables.exceptions.InvalidFormatException;
@@ -75,10 +76,10 @@ public class FileReaderJavaS {
                 if (validateAndAddMethodToDB(line)) {continue;}
                 if(processConditionalStatement(line)){continue;}
                 if(processClosingParenthesis(line)){continue;}
-                if(trackerReturn(line)){continue;} // check pls the function and what i have done in db
-                // zimun function check
-                this.rowProcessing.isSettingRow(line);
-                this.lineNumber++;
+                if(checkAndUpdateReturnTracker(line)){continue;}
+                if(isValidFunctionCall(line)){continue;}
+                if(isValidSettingRow(line)){continue;}
+                throw new InvalidFormatLine(this.lineNumber);
             }
         }
         catch (IOException e) {
@@ -89,10 +90,11 @@ public class FileReaderJavaS {
                JavaDocException | InvalidSingleCommentLineException | InvalidArrayException |
                InvalidFormatException | InvalidFinalVariableInitializationException |
                DoubleCreatingException | invalidVariableTypeException |
-               DoubleFunctionDeclaration|InvalidFormatFunctionException|
+               DoubleFunctionDeclaration | InvalidFormatFunctionException |
                InvalidFormatForWhileCommandException | InvalidFormatForIfCommandException |
                InvalidVarTypeForConditionException | UnreachableVariableException |
-               InvalidAmountOfClosingBracketsException e) {
+               InvalidAmountOfClosingBracketsException |NoReturnInFunctionException|
+               InvalidReturnException | IncorrectFunctionCallingFormat | InvalidFormatLine e) {
             System.err.println(e.getMessage());
             return 1;
         }
@@ -187,11 +189,11 @@ public class FileReaderJavaS {
 
     // this function checks validity of format of initialization of variable
     // if the line start with primitive type(int/double/boolean/string/char)
-    // check it's correctness and process it in the case it's correct statement
-    // and we in the global layer add to the data base.
+    // check its correctness and process it in the case it's correct statement
+    // and we in the global layer add to the database.
     // if the process ended successfully return true. else there
     // is a mistake and we throw an exception.
-    // similarly do the same process if it the line starts with final with specific
+    // similarly do the same process if it is the line starts with final with specific
     // exceptions for the case of final.
     // if the line don't start with one of these keywords return false.
     private boolean validateVariableAndInitializeGlobalVariable(String line){
@@ -221,7 +223,8 @@ public class FileReaderJavaS {
     // the function validates is the line start with void
     // if not return false because it's not method declaration
     // if it is first check is the format of the declaration is valid
-    // if it is then add it to DB update layer and line number and return true
+    // if it is then add it to DB update layer and line number, layer and amount
+    // of returns we should get and return true
     // if the format is incorrect or such method exists throw exception
     private boolean validateAndAddMethodToDB(String line){
         Pattern patternVoid = Pattern.compile(LINE_STARS_WITH_VOID);
@@ -266,14 +269,14 @@ public class FileReaderJavaS {
     // this function handles the case we see return;
     // check in the end is number of returns 0 if not
     // there is a function without a return
-    private boolean trackerReturn(String line){
+    private boolean checkAndUpdateReturnTracker(String line){
         Pattern patternReturn = Pattern.compile(LINE_IS_RETURN);
         Matcher mReturn = patternReturn.matcher(line);
         if(mReturn.matches()){
             if(this.layer == 0){
-                //throw an exception
+                throw new InvalidReturnException(this.lineNumber);
             }
-            else if(this.layer == 1 && this.numberOfReturns > 0){
+            if(this.layer == 1 && this.numberOfReturns > 0){
                 this.numberOfReturns--;
             }
             this.lineNumber++;
@@ -282,9 +285,37 @@ public class FileReaderJavaS {
         return false;
     }
 
+    // check is the number of returns after going ovver all the file
+    // is 0 if it is return true else re
+
+    // this function handles the case the line is a call to another
+    // function if the format is correct return true else throw
+    // an exception
+    private boolean isValidFunctionCall(String line){
+        if(this.methodProcessing.isMethodUsage(line)){
+            this.methodProcessing.isCorrectMethodUsageFormat(line);
+            this.lineNumber++;
+        }
+        return false;
+    }
+
+    // this function check is the row is a setting row
+    // if it is a setting row and the layer is 0 set the global variables and return true
+    // if it isn't setting row return false
+    private boolean isValidSettingRow(String line){
+        if(this.rowProcessing.isSettingRow(line)){
+            //set db
+            this.lineNumber++;
+        }
+        return false;
+    }
+
     // this function process a line that contains only "}" and update
     // the layer and line number according to it
     // if the line is valid decrement the layer and increase the line number
+    // if after decrement the current layer is 0 and number of return is
+    // bigger than zero than we didn't return in this function, and we would
+    // throw an exception
     // if the line contains only "}" but the layer is zero
     // throw an exception because there is invalid amount of closing brackets.
     // if the line don't equal to "}" return false
@@ -294,6 +325,9 @@ public class FileReaderJavaS {
                 throw new InvalidAmountOfClosingBracketsException(this.lineNumber);
             }
             this.layer--;
+            if(this.layer == 0 && this.numberOfReturns  > 0){
+                throw new NoReturnInFunctionException(this.lineNumber);
+            }
             this.lineNumber++;
             return true;
         }
