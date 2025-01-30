@@ -182,9 +182,6 @@ public class FileReaderJavaS {
         if(finalMatcher.matches()||notFinalMatcher.matches()){
             throw new InvalidArrayException(lineNumber);
         }
-
-
-        //throw new InvalidArrayException(lineNumber); -----aaaaaaaaa excception---
     }
 
     // this function checks validity of format of initialization of variable
