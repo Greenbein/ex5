@@ -1,15 +1,11 @@
 package code_processing;
 
-import code_processing.condition_exceptions.InvalidFormatForIfCommandException;
-import code_processing.condition_exceptions.InvalidFormatForWhileCommandException;
-import code_processing.condition_exceptions.InvalidVarTypeForConditionException;
+import code_processing.condition_exceptions.*;
 import code_processing.exceptions.*;
 import databases.MethodsDataBase;
 import databases.VariableDataBase;
 import methods.Method;
-import methods.exceptions.DoubleFunctionDeclaration;
-import methods.exceptions.IncorrectFunctionCallingFormat;
-import methods.exceptions.InvalidInputForMethodDeclarationException;
+import methods.exceptions.*;
 import variables.exceptions.DoubleCreatingException;
 import variables.exceptions.InvalidFinalVariableInitializationException;
 import variables.exceptions.InvalidFormatException;
@@ -113,42 +109,19 @@ public class FileReaderJavaS {
             String line;
             this.lineNumber = 0;
             while ((line = bufferedReader.readLine()) != null) {
-                if(methodDeclarationLine(line)){continue;}
-                if(!isLineIsMethodDeclarationLine(line) && this.layer == 0 || this.flagReturn){continue;}
+                if(methodDeclarationLine(line)){this.lineNumber++;
+                continue;}
+                if(!isLineIsMethodDeclarationLine(line) && this.layer == 0 || this.flagReturn){this.lineNumber++;
+                    continue;}
                 if(!isLineIsMethodDeclarationLine(line) && this.layer > 0){
                     if(settingLineInMethod(line)){continue;}
-                    if(rowProcessing.isMixed(line)){
-                        rowProcessing.extractDataMixed(line,this.layer,this.numberOfReturns);
-                        this.lineNumber++;
-                    }
-                    if(rowProcessing.isCorrectFormatFinal(line)){
-                        rowProcessing.extractDataFinal(line,this.layer,this.numberOfReturns);
-                        this.lineNumber++;
-                    }
-                    if(this.conditionProcessing.isStartsWithWhile(line)){
-                        conditionProcessing.isCorrectWhileUsage(line,layer);
-                        this.layer++;
-                        this.lineNumber++;
-                    }
-                    if(this.conditionProcessing.isStartsWithIf(line)){
-                        conditionProcessing.isCorrectIfUsage(line,layer);
-                        this.layer++;
-                        this.lineNumber++;
-                    }
-                    if(methodProcessing.isMethodUsage(line,this.conditionProcessing )){
-                        methodProcessing.checkMethodUsageCorrectness(line,variableDataBase,
-                                methodsDataBase);
-                        this.lineNumber++;
-                    }
-
-                    if(line.strip().equals("}")){
-                        this.variableDataBase.removeLayer(this.layer);
-                        this.layer--;
-                        if(this.layer == 0){
-                            this.flagReturn = false;
-                        }
-                        this.lineNumber++;
-                    }
+                    if(isInitializeLineInMethod(line)){continue;}
+                    if(isFinalInitializationLineInMethod(line)){continue;}
+                    if(isConditionWhileDeclarationLine(line)){continue;}
+                    if(isConditionIfDeclarationLine(line)){continue;}
+                    if(isMethodCallLine(line)){continue;}
+                    if(returnInMethod(line)){continue;}
+                    if(isMethodLineClosingParenthesis(line)){continue;}
                 }
             }
         }
@@ -157,13 +130,16 @@ public class FileReaderJavaS {
             return 2;
         }
         catch (InvalidFormatFunctionException | InvalidInputForMethodDeclarationException |
-                UnreachableVariableException | InvalidFormatException e) {
+               UnreachableVariableException | InvalidFormatException | DoubleCreatingException |
+               InvalidFinalVariableInitializationException | IllegalScopeForWhileException |
+               InvalidFormatForWhileCommandException | InvalidVarTypeForConditionException |
+               IllegalScopeForIfException | InvalidFormatForIfCommandException | MethodDoesNotExistException|
+               IncorrectNumberOfParameters|IncorrectParameterType e) {
             System.err.println(e.getMessage());
             return 1;
         }
         return 0;
     }
-
 
     //---------------basic check format is correct (functions for first check)------------------------
     // this function checks is it a skippable  line
@@ -312,9 +288,6 @@ public class FileReaderJavaS {
         return false;
     }
 
-    // check is the number of returns after going over all the file
-    // is 0 if it is return true else return false (need maybe use flag here too)
-
     // this function handles the case the line is a call to another
     // function if the format is correct return true else throw
     // an exception
@@ -356,7 +329,7 @@ public class FileReaderJavaS {
                 throw new InvalidAmountOfClosingBracketsException(this.lineNumber);
             }
             this.layer--;
-            if(this.layer == 0 && this.numberOfReturns  > 0){
+            if(this.layer == 0 && this.numberOfReturns > 0){
                 throw new NoReturnInFunctionException(this.lineNumber);
             }
             this.lineNumber++;
@@ -416,6 +389,63 @@ public class FileReaderJavaS {
         return false;
     }
 
+    // this function handles the case of final initialize in method
+    private boolean isFinalInitializationLineInMethod(String line){
+        if(rowProcessing.isCorrectFormatFinal(line)){
+            rowProcessing.extractDataFinal(line,this.layer,this.numberOfReturns);
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    // this function handles the case of condition declaration While line in method
+    private boolean isConditionWhileDeclarationLine(String line){
+        if(this.conditionProcessing.isStartsWithWhile(line)){
+            conditionProcessing.isCorrectWhileUsage(line,layer);
+            this.layer++;
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    //this function handles the case of condition declaration If line in method
+    private boolean isConditionIfDeclarationLine(String line){
+        if(this.conditionProcessing.isStartsWithIf(line)){
+            conditionProcessing.isCorrectIfUsage(line,layer);
+            this.layer++;
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    // this function handles the case of method call line in a method
+    private boolean isMethodCallLine(String line){
+        if(methodProcessing.isMethodUsage(line,this.conditionProcessing)){
+            methodProcessing.checkMethodUsageCorrectness(line,variableDataBase,
+                    methodsDataBase);
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    // this function handles the case of line in method that is "}"
+    private boolean isMethodLineClosingParenthesis(String line){
+        if(line.strip().equals("}")){
+            this.variableDataBase.removeLayer(this.layer);
+            this.layer--;
+            if(this.layer == 0){
+                this.flagReturn = false;
+            }
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
     // this function checks is the line is a return line.
     // if it is a return line in layer 1 (external layer) switch flag Return to True
     // else if the line is not a return line return false
@@ -431,5 +461,4 @@ public class FileReaderJavaS {
         }
         return false;
     }
-
 }
