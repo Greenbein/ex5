@@ -1,6 +1,6 @@
 package valid_name;
 
-import valid_name.name_exceptions.*;
+import exceptions.name_exceptions.*;
 
 /**
  * this class checks the validity of the name

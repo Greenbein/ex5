@@ -1,11 +1,11 @@
 package code_processing;
 
-import code_processing.condition_exceptions.*;
+import exceptions.basic_exceptions.condition_exceptions.*;
 import databases.VariableDataBase;
 import valid_name.ValidName;
 import variables.Variable;
 import variables.VariableType;
-import variables.exceptions.UnreachableVariableException;
+import exceptions.variables_exceptions.basic_variable_exception.UnreachableVariableException;
 import variables.variable_managers.CharManager;
 import variables.variable_managers.StringManager;
 

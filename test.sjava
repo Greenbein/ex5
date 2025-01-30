@@ -1,0 +1,23 @@
+String x ="ok";
+double y =33.0,z=2;
+
+void foo(int a,double x){
+
+   return;
+
+}
+
+int m = 22;
+
+
+boolean ss = true;
+void goo(){
+   foo(x,2.0);
+   while(ss&&true){
+   String hehe = "hehe";
+   if(true&&||false){
+     xxxx = m;
+   }
+  }
+  return;
+}

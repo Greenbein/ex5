@@ -1,15 +1,14 @@
 package code_processing;
 
-import code_processing.condition_exceptions.*;
-import code_processing.exceptions.*;
+import exceptions.basic_exceptions.condition_exceptions.*;
+import exceptions.basic_exceptions.*;
 import databases.MethodsDataBase;
 import databases.VariableDataBase;
-import methods.Method;
-import methods.exceptions.*;
-import variables.exceptions.DoubleCreatingException;
-import variables.exceptions.InvalidFinalVariableInitializationException;
-import variables.exceptions.InvalidFormatException;
-import variables.exceptions.UnreachableVariableException;
+import exceptions.methods_exceptions.*;
+import exceptions.variables_exceptions.basic_variable_exception.DoubleCreatingException;
+import exceptions.variables_exceptions.basic_variable_exception.InvalidFinalVariableInitializationException;
+import exceptions.variables_exceptions.basic_variable_exception.InvalidFormatException;
+import exceptions.variables_exceptions.basic_variable_exception.UnreachableVariableException;
 
 import java.io.*;
 import java.util.regex.Matcher;

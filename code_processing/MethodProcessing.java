@@ -1,15 +1,15 @@
 package code_processing;
 
-import code_processing.exceptions.InvalidFormatFunctionException;
-import code_processing.exceptions.invalidVariableTypeException;
+import exceptions.basic_exceptions.InvalidFormatFunctionException;
+import exceptions.basic_exceptions.invalidVariableTypeException;
 import databases.MethodsDataBase;
 import databases.VariableDataBase;
 import methods.Method;
-import methods.exceptions.*;
+import exceptions.methods_exceptions.*;
 import valid_name.ValidName;
 import variables.Variable;
 import variables.VariableType;
-import variables.exceptions.UnreachableVariableException;
+import exceptions.variables_exceptions.basic_variable_exception.UnreachableVariableException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;

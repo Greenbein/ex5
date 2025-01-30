@@ -4,8 +4,11 @@ import databases.VariableDataBase;
 import valid_name.ValidName;
 import variables.Variable;
 import variables.VariableType;
-import variables.exceptions.*;
-import variables.exceptions.input_exceptions.SetValueTypeException;
+import exceptions.variables_exceptions.basic_variable_exception.DoubleCreatingException;
+import exceptions.variables_exceptions.basic_variable_exception.InvalidFinalVariableInitializationException;
+import exceptions.variables_exceptions.basic_variable_exception.InvalidFormatException;
+import exceptions.variables_exceptions.basic_variable_exception.UnreachableVariableException;
+import exceptions.variables_exceptions.input_exceptions.SetValueTypeException;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -153,9 +156,6 @@ public class RowProcessing {
     public boolean isSettingRow(String code) {
         Pattern pattern = Pattern.compile(SETTING_ROW);
         Matcher matcher = pattern.matcher(code);
-        if(matcher.matches()){
-            System.out.println("The code: "+code+" is setting row");
-        }
         return matcher.matches();
     }
 

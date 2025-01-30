@@ -1,7 +1,7 @@
 package variables.variable_managers;
 
 import variables.Variable;
-import variables.exceptions.input_exceptions.InvalidBooleanException;
+import exceptions.variables_exceptions.input_exceptions.InvalidBooleanException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

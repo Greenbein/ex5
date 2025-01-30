@@ -1,14 +1,10 @@
 package main;
 
 import code_processing.FileReaderJavaS;
-import code_processing.exceptions.*;
 import databases.VariableDataBase;
-import main.exceptions_main.IllegalFileFormatException;
-import main.exceptions_main.IllegalNumberOfArguments;
-import variables.exceptions.InvalidFinalVariableInitializationException;
-import variables.exceptions.InvalidFormatException;
+import exceptions.exceptions_main.IllegalFileFormatException;
+import exceptions.exceptions_main.IllegalNumberOfArguments;
 
-import java.io.File;
 import java.io.IOException;
 
 /**

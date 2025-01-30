@@ -1,8 +1,5 @@
 package variables.variable_managers;
 
-import valid_name.ValidName;
-import variables.exceptions.input_exceptions.InvalidIntegerException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

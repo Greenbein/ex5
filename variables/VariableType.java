@@ -1,9 +1,7 @@
 package variables;
 
 
-import methods.exceptions.IncorrectParameterType;
-import variables.exceptions.input_exceptions.IllegalTypeException;
-import variables.variable_managers.*;
+import exceptions.variables_exceptions.input_exceptions.IllegalTypeException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

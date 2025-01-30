@@ -1,9 +1,8 @@
 package variables.variable_managers;
 
-import valid_name.ValidName;
 import variables.Variable;
-import variables.exceptions.*;
-import variables.exceptions.input_exceptions.*;
+import exceptions.variables_exceptions.basic_variable_exception.InvalidSetFinalVariableException;
+import exceptions.variables_exceptions.input_exceptions.*;
 
 /**
  * Interface for managers

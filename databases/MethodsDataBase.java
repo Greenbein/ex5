@@ -1,7 +1,7 @@
 package databases;
 
 import methods.Method;
-import methods.exceptions.DoubleFunctionDeclaration;
+import exceptions.methods_exceptions.DoubleFunctionDeclaration;
 import java.util.ArrayList;
 
 /**

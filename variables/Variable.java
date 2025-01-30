@@ -1,8 +1,8 @@
 package variables;
 
 import databases.VariableDataBase;
-import variables.exceptions.*;
 import valid_name.*;
+import exceptions.variables_exceptions.basic_variable_exception.*;
 import variables.variable_managers.*;
 
 /**
