@@ -260,7 +260,6 @@ public class RowProcessing {
                 // Captures the value, preserving formatting
                 String value = matcher.group(2).trim();
                 Variable variable = this.variableDataBase.findVarByNameOnly(varName, layer);
-
                 if (variable == null) {
                     throw new UnreachableVariableException(varName);
                 }

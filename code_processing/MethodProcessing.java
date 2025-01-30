@@ -158,7 +158,7 @@ public class MethodProcessing {
                 if(parameter!=null){
                     db.addVariable(parameter);
                 }
-                else{
+                else{ // check maybe delete later
                     throw new RuntimeException("Failed to create a new parameter for the method");
                 }
             }

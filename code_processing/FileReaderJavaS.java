@@ -9,6 +9,7 @@ import databases.VariableDataBase;
 import methods.Method;
 import methods.exceptions.DoubleFunctionDeclaration;
 import methods.exceptions.IncorrectFunctionCallingFormat;
+import methods.exceptions.InvalidInputForMethodDeclarationException;
 import variables.exceptions.DoubleCreatingException;
 import variables.exceptions.InvalidFinalVariableInitializationException;
 import variables.exceptions.InvalidFormatException;
@@ -44,6 +45,7 @@ public class FileReaderJavaS {
     private int layer;
     private int lineNumber;
     private int numberOfReturns;
+    private boolean flagReturn;
 
 
     /**
@@ -58,7 +60,8 @@ public class FileReaderJavaS {
         this.methodsDataBase = new MethodsDataBase();
         this.layer = 0;
         this.lineNumber = 1;
-        this.numberOfReturns = 0; // following after number of returns should be in the end 0
+        this.numberOfReturns = 0;
+        this.flagReturn = false;
     }
 
     /**
@@ -79,9 +82,7 @@ public class FileReaderJavaS {
                 if(checkAndUpdateReturnTracker(line)){continue;}
                 if(isValidFunctionCall(line)){continue;}
                 if(isValidSettingRow(line)){continue;}
-                else{
-                    throw new InvalidFormatLine(this.lineNumber);
-                }
+                throw new InvalidFormatLine(this.lineNumber);
             }
             checkScopesCorrectness();
         }
@@ -104,23 +105,20 @@ public class FileReaderJavaS {
         return 0;
     }
 
+    /**
+     * this function processes the methods in the file
+     * @param inputFile the given path to the file
+     * @return 0 if valid file 1 if there is an error 2 if there is IOException
+     */
     public int functionsCheckInFile(String inputFile){
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile))) {
             String line;
             this.lineNumber = 0;
             while ((line = bufferedReader.readLine()) != null) {
-                if(isLineIsMethod(line)){
-                    this.methodProcessing.loadFunctionParametersToDB(line,variableDataBase);
-                    this.layer++;
-                    this.lineNumber++;
-                    continue;
-                }
-                if(!isLineIsMethod(line) && this.layer == 0){continue;}
-                if(!isLineIsMethod(line) && this.layer >0){
-                    if(rowProcessing.isSettingRow(line)){
-                        rowProcessing.updateVariablesValues(line,this.layer);
-                        this.lineNumber++;
-                    }
+                if(methodDeclarationLine(line)){continue;}
+                if(!isLineIsMethodDeclarationLine(line) && this.layer == 0 || this.flagReturn){continue;}
+                if(!isLineIsMethodDeclarationLine(line) && this.layer > 0){
+                    if(settingLineInMethod(line)){continue;}
                     if(rowProcessing.isMixed(line)){
                         rowProcessing.extractDataMixed(line,this.layer,this.numberOfReturns);
                         this.lineNumber++;
@@ -144,14 +142,15 @@ public class FileReaderJavaS {
                                 methodsDataBase);
                         this.lineNumber++;
                     }
-                    //????????????????????
 
                     if(line.strip().equals("}")){
                         this.variableDataBase.removeLayer(this.layer);
                         this.layer--;
+                        if(this.layer == 0){
+                            this.flagReturn = false;
+                        }
                         this.lineNumber++;
                     }
-
                 }
             }
         }
@@ -159,11 +158,16 @@ public class FileReaderJavaS {
             System.err.println("Invalid file name: file does not exist");
             return 2;
         }
+        catch (InvalidFormatFunctionException | InvalidInputForMethodDeclarationException |
+                UnreachableVariableException | InvalidFormatException e) {
+            System.err.println(e.getMessage());
+            return 1;
+        }
         return 0;
     }
 
 
-    //---------------------basic check format is correct---------------------------
+    //---------------basic check format is correct (functions for first check)------------------------
     // this function checks is it a skippable  line
     private boolean isSskippableLine(String line) {
         if(line.isBlank()||line.startsWith(START_SINGLE_COMMENT)){
@@ -314,8 +318,8 @@ public class FileReaderJavaS {
         return false;
     }
 
-    // check is the number of returns after going ovver all the file
-    // is 0 if it is return true else re
+    // check is the number of returns after going over all the file
+    // is 0 if it is return true else return false (need maybe use flag here too)
 
     // this function handles the case the line is a call to another
     // function if the format is correct return true else throw
@@ -377,19 +381,56 @@ public class FileReaderJavaS {
 
     // -----------------functions for second reading (reading of functions)--------
 
-    // this function returns is line is a method or not
-    private boolean isLineIsMethod(String line){
+    // this function returns is a line is a method declaration line or not
+    private boolean isLineIsMethodDeclarationLine(String line){
         Pattern patternVoid = Pattern.compile(LINE_STARS_WITH_VOID);
         Matcher mVoid = patternVoid.matcher(line);
         return mVoid.matches();
     }
 
+    // this function checks is line is a method declaration or not
+    // if it is it loads the parameters into the variables database updates
+    // the layer and the line number and returns true
+    // if it's not a method declaration return false
+    private boolean methodDeclarationLine(String line){
+        if(isLineIsMethodDeclarationLine(line)){
+            this.methodProcessing.loadFunctionParametersToDB(line,variableDataBase);
+            this.layer++;
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    // this function handles the case of setting variables in method
+    private boolean settingLineInMethod(String line){
+        if(this.rowProcessing.isSettingRow(line)){
+            this.rowProcessing.updateVariablesValues(line,this.layer);
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    // this function handles the case of initialize in the method
+    private boolean isInitializeLineInMethod(String line){
+        if(rowProcessing.isMixed(line)){
+            rowProcessing.extractDataMixed(line,this.layer,this.numberOfReturns);
+            this.lineNumber++;
+            return true;
+        }
+        return false;
+    }
+
+    // this function checks is the line is a return line.
+    // if it is a return line in layer 1 (external layer) switch flag Return to True
+    // else if the line is not a return line return false
     private boolean returnInMethod(String line){
         Pattern patternReturn = Pattern.compile(LINE_IS_RETURN);
         Matcher mReturn = patternReturn.matcher(line);
         if(mReturn.matches()){
-            if(this.layer == 1){
-                this.flagG
+            if(this.layer == 1 && !this.flagReturn){
+                this.flagReturn = true;
             }
             this.lineNumber++;
             return true;
